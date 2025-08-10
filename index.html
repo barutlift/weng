@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>İngilizce Kelime Testi v4 (Hafızalı)</title>
+  <title>İngilizce Kelime Testi v4 (Firebase ile)</title>
   <style>
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
-        sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
       background-color: #2c3e50;
       color: #ecf0f1;
       display: flex;
@@ -150,16 +150,12 @@
 
   <audio id="audio-player"></audio>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import {
-      getDatabase,
-      ref,
-      get,
-      set,
-      remove,
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js"></script>
 
+  <script>
+    // Firebase yapılandırması
     const firebaseConfig = {
       apiKey: "AIzaSyB9AwJ5DD5ZQC0qMEGiY2T5QIjAsSc69c8",
       authDomain: "vw-app-ddeb3.firebaseapp.com",
@@ -167,27 +163,12 @@
       projectId: "vw-app-ddeb3",
       storageBucket: "vw-app-ddeb3.appspot.com",
       messagingSenderId: "720524223736",
-      appId: "1:720524223736:web:b62f23136cce661d52070d",
+      appId: "1:720524223736:web:b62f23136cce661d52070d"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    // Firebase'ten ilerlemeyi getir
-    async function getProgress() {
-      const snapshot = await get(ref(db, "users/anonymousUser1/solvedQuestions"));
-      return snapshot.exists() ? snapshot.val() : [];
-    }
-
-    // Firebase'e ilerlemeyi kaydet
-    async function saveProgress(solvedQuestions) {
-      await set(ref(db, "users/anonymousUser1/solvedQuestions"), solvedQuestions);
-    }
-
-    // Firebase'teki ilerlemeyi sil
-    async function resetProgress() {
-      await remove(ref(db, "users/anonymousUser1/solvedQuestions"));
-    }
+    // Firebase başlat
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
     const sentenceEl = document.getElementById("sentence");
     const promptEl = document.getElementById("prompt");
@@ -202,12 +183,24 @@
     let totalQuestionCount = 0;
     let answered = false;
 
+    // Firebase’ten ilerlemeyi getir
+    async function getProgress() {
+      const snapshot = await db.ref("users/anonymousUser1/solvedQuestions").get();
+      return snapshot.exists() ? snapshot.val() : [];
+    }
+
+    // Firebase’e ilerlemeyi kaydet
+    async function saveProgress(solvedQuestions) {
+      await db.ref("users/anonymousUser1/solvedQuestions").set(solvedQuestions);
+    }
+
+    // Firebase ilerlemeyi sıfırla
+    async function resetProgress() {
+      await db.ref("users/anonymousUser1/solvedQuestions").remove();
+    }
+
     resetBtn.addEventListener("click", async () => {
-      if (
-        confirm(
-          "Tüm ilerlemeniz silinecek ve teste en baştan başlayacaksınız. Emin misiniz?"
-        )
-      ) {
+      if (confirm("Tüm ilerlemeniz silinecek ve teste en baştan başlayacaksınız. Emin misiniz?")) {
         await resetProgress();
         location.reload();
       }
@@ -220,12 +213,10 @@
     async function startQuiz() {
       try {
         const response = await fetch("./soru_bankasi.json");
-        if (!response.ok)
-          throw new Error("soru_bankasi.json dosyası bulunamadı!");
+        if (!response.ok) throw new Error("soru_bankasi.json dosyası bulunamadı!");
 
         const allLoadedQuestions = await response.json();
 
-        // Firebase'den ilerlemeyi al
         const solvedIds = await getProgress();
 
         const allQuestionsWithState = allLoadedQuestions.flatMap((wordData) =>
@@ -234,18 +225,14 @@
 
         totalQuestionCount = allQuestionsWithState.length;
 
-        questionPool = allQuestionsWithState.filter(
-          (q) => !solvedIds.includes(q.questionId)
-        );
+        questionPool = allQuestionsWithState.filter((q) => !solvedIds.includes(q.questionId));
 
         if (questionPool.length === 0 && totalQuestionCount > 0) {
           document.querySelector(".quiz-container").innerHTML = `<h1>Mükemmel!</h1><p>Veritabanındaki tüm soruları başarıyla tamamladınız.</p><button id="final-reset-btn">İlerlemeyi Sıfırla</button>`;
-          document
-            .getElementById("final-reset-btn")
-            .addEventListener("click", async () => {
-              await resetProgress();
-              location.reload();
-            });
+          document.getElementById("final-reset-btn").addEventListener("click", async () => {
+            await resetProgress();
+            location.reload();
+          });
           return;
         }
 
@@ -300,12 +287,11 @@
 
       Array.from(optionsContainerEl.children).forEach((option) => {
         if (option.dataset.key === correctKey) option.classList.add("correct");
-        else if (option.dataset.key === selectedKey)
-          option.classList.add("incorrect");
+        else if (option.dataset.key === selectedKey) option.classList.add("incorrect");
       });
 
       if (isCorrect) {
-        let solvedIds = await getProgress();
+        const solvedIds = await getProgress();
         if (!solvedIds.includes(question.questionId)) {
           solvedIds.push(question.questionId);
           await saveProgress(solvedIds);
