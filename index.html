@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>İngilizce Kelime Testi v4 (Hafızalı)</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #2c3e50;
+            color: #ecf0f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .quiz-container {
+            background-color: #34495e;
+            border-radius: 10px;
+            padding: 30px;
+            width: 100%;
+            max-width: 800px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .question-header {
+            border-bottom: 2px solid #7f8c8d;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .sentence {
+            font-size: 1.4em;
+            font-style: italic;
+            margin-bottom: 0;
+            flex-grow: 1;
+        }
+        .prompt {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .options-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        .option {
+            background-color: #7f8c8d;
+            border: 2px solid transparent;
+            border-radius: 5px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            align-items: center;
+        }
+        .option:hover {
+            background-color: #95a5a6;
+        }
+        .option.correct {
+            background-color: #27ae60;
+            color: white;
+            border-color: #2ecc71;
+        }
+        .option.incorrect {
+            background-color: #c0392b;
+            color: white;
+            border-color: #e74c3c;
+        }
+        .option-letter {
+            font-weight: bold;
+            margin-right: 15px;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        #next-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 1.1em;
+            cursor: pointer;
+            display: none;
+        }
+        #reset-btn, #final-reset-btn {
+            background: none;
+            border: 1px solid #c0392b;
+            color: #c0392b;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.2s ease-in-out;
+        }
+        #reset-btn:hover, #final-reset-btn:hover {
+            background: #c0392b;
+            color: white;
+        }
+        .stats {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 0.9em;
+            color: #bdc3c7;
+        }
+        #speak-btn {
+            font-size: 1.5em;
+            cursor: pointer;
+            user-select: none;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="quiz-container">
+        <div id="stats" class="stats"></div>
+        <div id="question-area">
+            <div class="question-header">
+                <p id="sentence" class="sentence"></p>
+                <span id="speak-btn" title="Tekrar Dinle">🔊</span>
+            </div>
+            <p id="prompt" class="prompt"></p>
+            <div id="options-container" class="options-container"></div>
+        </div>
+        <div class="controls">
+            <button id="reset-btn">İlerlemeyi Sıfırla</button>
+            <button id="next-btn">Sonraki Soru</button>
+        </div>
+    </div>
+
+    <audio id="audio-player"></audio>
+
+    <script>
+        const sentenceEl = document.getElementById('sentence');
+        const promptEl = document.getElementById('prompt');
+        const optionsContainerEl = document.getElementById('options-container');
+        const nextBtn = document.getElementById('next-btn');
+        const statsEl = document.getElementById('stats');
+        const speakBtn = document.getElementById('speak-btn');
+        const audioPlayer = document.getElementById('audio-player');
+        const resetBtn = document.getElementById('reset-btn');
+
+        let questionPool = [];
+        let totalQuestionCount = 0;
+        let answered = false;
+        
+        resetBtn.addEventListener('click', () => {
+            if (confirm("Tüm ilerlemeniz silinecek ve teste en baştan başlayacaksınız. Emin misiniz?")) {
+                localStorage.removeItem('solvedQuestions');
+                location.reload();
+            }
+        });
+
+        speakBtn.addEventListener('click', () => { audioPlayer.play(); });
+
+        async function startQuiz() {
+            try {
+                const response = await fetch('./soru_bankasi.json');
+                if (!response.ok) throw new Error('soru_bankasi.json dosyası bulunamadı!');
+                
+                const allLoadedQuestions = await response.json();
+                
+                const solvedIdsString = localStorage.getItem('solvedQuestions');
+                const solvedIds = solvedIdsString ? JSON.parse(solvedIdsString) : [];
+
+                const allQuestionsWithState = allLoadedQuestions.flatMap(wordData => 
+                    wordData.questions.map(q => ({ ...q, word: wordData.word, mistakeCount: 0 }))
+                );
+                
+                totalQuestionCount = allQuestionsWithState.length;
+
+                questionPool = allQuestionsWithState.filter(q => !solvedIds.includes(q.questionId));
+                
+                if(questionPool.length === 0 && totalQuestionCount > 0) {
+                     document.querySelector('.quiz-container').innerHTML = `<h1>Mükemmel!</h1><p>Veritabanındaki tüm soruları başarıyla tamamladınız.</p><button id="final-reset-btn">İlerlemeyi Sıfırla</button>`;
+                     document.getElementById('final-reset-btn').addEventListener('click', () => {
+                         localStorage.removeItem('solvedQuestions');
+                         location.reload();
+                     });
+                     return;
+                }
+
+                questionPool.sort(() => Math.random() - 0.5);
+                displayQuestion();
+            } catch (error) {
+                document.querySelector('.quiz-container').innerHTML = `<h1>Hata</h1><p>${error.message}</p>`;
+            }
+        }
+
+        function displayQuestion() {
+            answered = false;
+            nextBtn.style.display = 'none';
+            updateStats();
+
+            if (questionPool.length === 0) {
+                 document.querySelector('.quiz-container').innerHTML = `<h1>Harika!</h1><p>Bu oturumdaki tüm soruları tamamladınız.</p><p style='font-size:0.9em'>Sayfayı yenilediğinizde yeni kelimelerle devam edebilirsiniz.</p>`;
+                return;
+            }
+
+            const question = questionPool[0];
+            audioPlayer.src = `./audio/${question.questionId}.mp3`;
+            const sentenceText = question.sentence.replace(/\[__.*?__\]/g, `[_______]`);
+            sentenceEl.textContent = sentenceText;
+            promptEl.textContent = question.prompt;
+            optionsContainerEl.innerHTML = '';
+            
+            const options = question.options;
+            let optionKeys = Object.keys(options);
+            for (let i = optionKeys.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [optionKeys[i], optionKeys[j]] = [optionKeys[j], optionKeys[i]];
+            }
+            
+            for (const key of optionKeys) {
+                const value = options[key];
+                const optionEl = document.createElement('div');
+                optionEl.classList.add('option');
+                optionEl.dataset.key = key;
+                optionEl.innerHTML = `<span class="option-letter">${key.toUpperCase()}</span><span>${value}</span>`;
+                optionEl.addEventListener('click', () => selectAnswer(optionEl, key));
+                optionsContainerEl.appendChild(optionEl);
+            }
+        }
+        
+        function selectAnswer(selectedOptionEl, selectedKey) {
+            if (answered) return;
+            answered = true;
+            const question = questionPool[0];
+            const correctKey = question.correctAnswer;
+            const isCorrect = selectedKey === correctKey;
+            
+            Array.from(optionsContainerEl.children).forEach(option => {
+                if (option.dataset.key === correctKey) option.classList.add('correct');
+                else if (option.dataset.key === selectedKey) option.classList.add('incorrect');
+            });
+            
+            if (isCorrect) {
+                const solvedIdsString = localStorage.getItem('solvedQuestions');
+                const solvedIds = solvedIdsString ? JSON.parse(solvedIdsString) : [];
+                if (!solvedIds.includes(question.questionId)) {
+                    solvedIds.push(question.questionId);
+                }
+                localStorage.setItem('solvedQuestions', JSON.stringify(solvedIds));
+            } else {
+                question.mistakeCount++;
+                if (question.mistakeCount === 1) {
+                    const reinsertIndex = Math.min(11, questionPool.length);
+                    questionPool.splice(reinsertIndex, 0, question);
+                } else if (question.mistakeCount === 2) {
+                    const reinsertIndex = Math.min(6, questionPool.length);
+                    questionPool.splice(reinsertIndex, 0, question);
+                }
+            }
+            
+            nextBtn.style.display = 'block';
+        }
+
+        function updateStats() {
+            statsEl.textContent = `Kalan Soru: ${questionPool.length} / ${totalQuestionCount}`;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            questionPool.shift();
+            displayQuestion();
+        });
+
+        startQuiz();
+    </script>
+
+</body>
+</html>
