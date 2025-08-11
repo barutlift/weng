@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>weng</title>
+    <title>WEng - Akıllı Tekrar Sistemi</title>
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -15,6 +15,7 @@
             min-height: 100vh;
             margin: 0;
             padding: 20px;
+            box-sizing: border-box;
         }
         .quiz-container {
             background-color: #34495e;
@@ -90,16 +91,6 @@
             justify-content: space-between;
             align-items: center;
         }
-        #next-btn {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            border-radius: 5px;
-            font-size: 1.1em;
-            cursor: pointer;
-            display: none;
-        }
         #reset-btn, #final-reset-btn {
             background: none;
             border: 1px solid #c0392b;
@@ -116,8 +107,8 @@
         }
         .stats {
             position: absolute;
-            top: 10px;
-            right: 20px;
+            top: 15px;
+            right: 25px;
             font-size: 0.9em;
             color: #bdc3c7;
         }
@@ -125,6 +116,18 @@
             font-size: 1.5em;
             cursor: pointer;
             user-select: none;
+        }
+        .srs-btn {
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .srs-btn:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -142,148 +145,245 @@
         </div>
         <div class="controls">
             <button id="reset-btn">İlerlemeyi Sıfırla</button>
-            <button id="next-btn">Sonraki Soru</button>
+            <div id="srs-controls" style="display: none; gap: 10px;">
+                <button class="srs-btn" id="srs-again" style="background-color: #c0392b;">Tekrar</button>
+                <button class="srs-btn" id="srs-hard" style="background-color: #e67e22;">Zor</button>
+                <button class="srs-btn" id="srs-good" style="background-color: #3498db;">İyi</button>
+                <button class="srs-btn" id="srs-easy" style="background-color: #27ae60;">Kolay</button>
+            </div>
         </div>
     </div>
 
     <audio id="audio-player"></audio>
 
     <script>
+        // --- ELEMENT REFERANSLARI ---
         const sentenceEl = document.getElementById('sentence');
         const promptEl = document.getElementById('prompt');
         const optionsContainerEl = document.getElementById('options-container');
-        const nextBtn = document.getElementById('next-btn');
         const statsEl = document.getElementById('stats');
         const speakBtn = document.getElementById('speak-btn');
         const audioPlayer = document.getElementById('audio-player');
         const resetBtn = document.getElementById('reset-btn');
+        const srsControlsEl = document.getElementById('srs-controls');
+        const srsAgainBtn = document.getElementById('srs-again');
+        const srsHardBtn = document.getElementById('srs-hard');
+        const srsGoodBtn = document.getElementById('srs-good');
+        const srsEasyBtn = document.getElementById('srs-easy');
+        const quizContainer = document.querySelector('.quiz-container');
 
-        let questionPool = [];
-        let totalQuestionCount = 0;
+        // --- GLOBAL DEĞİŞKENLER ---
+        let dueQuestionsPool = [];
+        let allQuestions = [];
         let answered = false;
-        
-        resetBtn.addEventListener('click', () => {
-            if (confirm("Tüm ilerlemeniz silinecek ve teste en baştan başlayacaksınız. Emin misiniz?")) {
-                localStorage.removeItem('solvedQuestions');
-                location.reload();
-            }
-        });
+        let currentQuestion = null;
 
-        speakBtn.addEventListener('click', () => { audioPlayer.play(); });
+        // --- SRS ARALIKLARI (GÜN OLARAK) ---
+        const srsIntervals = [1, 3, 7, 15, 30, 60, 120, 240, 360];
 
         async function startQuiz() {
             try {
                 const response = await fetch('./soru_bankasi.json');
-                if (!response.ok) throw new Error('soru_bankasi.json dosyası bulunamadı!');
+                if (!response.ok) throw new Error('Hata: soru_bankasi.json dosyası yüklenemedi veya bulunamadı.');
                 
-                const allLoadedQuestions = await response.json();
-                
-                const solvedIdsString = localStorage.getItem('solvedQuestions');
-                const solvedIds = solvedIdsString ? JSON.parse(solvedIdsString) : [];
-
-                const allQuestionsWithState = allLoadedQuestions.flatMap(wordData => 
-                    wordData.questions.map(q => ({ ...q, word: wordData.word, mistakeCount: 0 }))
+                const loadedData = await response.json();
+                allQuestions = loadedData.flatMap(wordData =>
+                    wordData.questions.map(q => ({ ...q, word: wordData.word }))
                 );
-                
-                totalQuestionCount = allQuestionsWithState.length;
 
-                questionPool = allQuestionsWithState.filter(q => !solvedIds.includes(q.questionId));
-                
-                if(questionPool.length === 0 && totalQuestionCount > 0) {
-                     document.querySelector('.quiz-container').innerHTML = `<h1>Mükemmel!</h1><p>Veritabanındaki tüm soruları başarıyla tamamladınız.</p><button id="final-reset-btn">İlerlemeyi Sıfırla</button>`;
-                     document.getElementById('final-reset-btn').addEventListener('click', () => {
-                         localStorage.removeItem('solvedQuestions');
-                         location.reload();
-                     });
-                     return;
+                const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+
+                dueQuestionsPool = allQuestions.filter(q => {
+                    const state = states[q.questionId];
+                    if (!state) return true; // Yeni soru
+                    
+                    const dueDate = new Date(state.dueDate);
+                    return dueDate <= today; // Tekrar zamanı gelmiş soru
+                });
+
+                if (dueQuestionsPool.length === 0 && allQuestions.length > 0) {
+                    displayNoMoreQuestionsMessage(states);
+                    return;
                 }
 
-                questionPool.sort(() => Math.random() - 0.5);
+                dueQuestionsPool.sort(() => Math.random() - 0.5);
                 displayQuestion();
             } catch (error) {
-                document.querySelector('.quiz-container').innerHTML = `<h1>Hata</h1><p>${error.message}</p>`;
+                quizContainer.innerHTML = `<h1>Hata</h1><p>${error.message}</p><p>Lütfen 'soru_bankasi.json' dosyasının doğru yerde olduğundan emin olun.</p>`;
             }
         }
 
-        function displayQuestion() {
-            answered = false;
-            nextBtn.style.display = 'none';
-            updateStats();
+        function displayNoMoreQuestionsMessage(questionStates) {
+            let nextQuestionDate = null;
+            const today = new Date();
+            today.setHours(0,0,0,0);
 
-            if (questionPool.length === 0) {
-                 document.querySelector('.quiz-container').innerHTML = `<h1>Harika!</h1><p>Bu oturumdaki tüm soruları tamamladınız.</p><p style='font-size:0.9em'>Sayfayı yenilediğinizde yeni kelimelerle devam edebilirsiniz.</p>`;
+            for (const qId in questionStates) {
+                const dueDate = new Date(questionStates[qId].dueDate);
+                 if (dueDate > today && (!nextQuestionDate || dueDate < nextQuestionDate)) {
+                    nextQuestionDate = dueDate;
+                }
+            }
+
+            let message = `<h1>Harika!</h1><p>Bugünlük tekrar edilecek tüm soruları tamamladınız.</p>`;
+            if (nextQuestionDate) {
+                const formattedDate = nextQuestionDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
+                message += `<p style='font-size:0.9em'>Bir sonraki tekrar oturumunuz <b>${formattedDate}</b> tarihinde.</p>`;
+            }
+            message += `<button id="final-reset-btn" style="margin-top: 15px;">Tüm İlerlemeyi Sıfırla</button>`;
+
+            quizContainer.innerHTML = message;
+            document.getElementById('final-reset-btn').addEventListener('click', resetProgress);
+        }
+
+        function displayQuestion() {
+            if (dueQuestionsPool.length === 0) {
+                startQuiz(); // Tekrar kontrol et
                 return;
             }
 
-            const question = questionPool[0];
-            audioPlayer.src = `./audio/${question.questionId}.mp3`;
-            const sentenceText = question.sentence.replace(/\[__.*?__\]/g, `[_______]`);
-            sentenceEl.textContent = sentenceText;
-            promptEl.textContent = question.prompt;
+            answered = false;
+            srsControlsEl.style.display = 'none';
+            updateStats();
+
+            currentQuestion = dueQuestionsPool[0];
+            audioPlayer.src = `./audio/${currentQuestion.questionId}.mp3`;
+            const sentenceText = currentQuestion.sentence.replace(/\[__.*?__\]/g, `<b>[_______]</b>`);
+            sentenceEl.innerHTML = sentenceText;
+            promptEl.textContent = currentQuestion.prompt;
             optionsContainerEl.innerHTML = '';
-            
-            const options = question.options;
-            let optionKeys = Object.keys(options);
-            for (let i = optionKeys.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [optionKeys[i], optionKeys[j]] = [optionKeys[j], optionKeys[i]];
-            }
-            
+
+            const options = currentQuestion.options;
+            let optionKeys = Object.keys(options).sort(() => Math.random() - 0.5);
+
             for (const key of optionKeys) {
-                const value = options[key];
                 const optionEl = document.createElement('div');
                 optionEl.classList.add('option');
                 optionEl.dataset.key = key;
-                optionEl.innerHTML = `<span class="option-letter">${key.toUpperCase()}</span><span>${value}</span>`;
+                optionEl.innerHTML = `<span class="option-letter">${key.toUpperCase()}</span><span>${options[key]}</span>`;
                 optionEl.addEventListener('click', () => selectAnswer(optionEl, key));
                 optionsContainerEl.appendChild(optionEl);
             }
         }
-        
+
         function selectAnswer(selectedOptionEl, selectedKey) {
             if (answered) return;
             answered = true;
-            const question = questionPool[0];
-            const correctKey = question.correctAnswer;
+
+            const correctKey = currentQuestion.correctAnswer;
             const isCorrect = selectedKey === correctKey;
-            
+
             Array.from(optionsContainerEl.children).forEach(option => {
+                option.style.cursor = 'default';
                 if (option.dataset.key === correctKey) option.classList.add('correct');
                 else if (option.dataset.key === selectedKey) option.classList.add('incorrect');
             });
             
-            if (isCorrect) {
-                const solvedIdsString = localStorage.getItem('solvedQuestions');
-                const solvedIds = solvedIdsString ? JSON.parse(solvedIdsString) : [];
-                if (!solvedIds.includes(question.questionId)) {
-                    solvedIds.push(question.questionId);
-                }
-                localStorage.setItem('solvedQuestions', JSON.stringify(solvedIds));
-            } else {
-                question.mistakeCount++;
-                if (question.mistakeCount === 1) {
-                    const reinsertIndex = Math.min(11, questionPool.length);
-                    questionPool.splice(reinsertIndex, 0, question);
-                } else if (question.mistakeCount === 2) {
-                    const reinsertIndex = Math.min(6, questionPool.length);
-                    questionPool.splice(reinsertIndex, 0, question);
-                }
+            updateSrsButtonLabels(isCorrect);
+            srsControlsEl.style.display = 'flex';
+        }
+
+        function updateSrsButtonLabels(isCorrect) {
+            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
+            const state = states[currentQuestion.questionId] || { level: 0 };
+
+            // Eğer cevap yanlışsa, sadece "Tekrar" butonu aktif olsun.
+            if (!isCorrect) {
+                srsHardBtn.style.display = 'none';
+                srsGoodBtn.style.display = 'none';
+                srsEasyBtn.style.display = 'none';
+                srsAgainBtn.textContent = 'Tekrar (10dk sonra)';
+                return;
             }
             
-            nextBtn.style.display = 'block';
+            // Eğer cevap doğruysa, tüm butonlar görünsün.
+            srsHardBtn.style.display = 'block';
+            srsGoodBtn.style.display = 'block';
+            srsEasyBtn.style.display = 'block';
+
+            const goodLevel = state.level + 1;
+            const easyLevel = state.level + 2;
+
+            srsAgainBtn.textContent = `Tekrar (10dk)`;
+            srsHardBtn.textContent = `Zor (${formatInterval(srsIntervals[state.level] || 1)})`;
+            srsGoodBtn.textContent = `İyi (${formatInterval(srsIntervals[goodLevel] || srsIntervals[srsIntervals.length-1])})`;
+            srsEasyBtn.textContent = `Kolay (${formatInterval(srsIntervals[easyLevel] || srsIntervals[srsIntervals.length-1])})`;
+        }
+
+        function formatInterval(days) {
+            if (days < 1) return `${Math.round(days * 24 * 60)}dk`;
+            if (days < 30) return `${days}g`;
+            const months = Math.round(days / 30);
+            return `~${months}ay`;
+        }
+
+        function updateQuestionState(rating) {
+            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
+            const questionId = currentQuestion.questionId;
+            let currentState = states[questionId] || { level: 0 };
+            
+            let nextDueDate = new Date();
+            nextDueDate.setHours(0,0,0,0);
+
+            switch (rating) {
+                case 'again':
+                    currentState.level = 0; // Seviyeyi sıfırla
+                    const reInsertIndex = Math.min(10, dueQuestionsPool.length);
+                    dueQuestionsPool.splice(reInsertIndex, 0, currentQuestion); // 10 soru sonra tekrar sormak için araya ekle
+                    break;
+                case 'hard':
+                    // Seviye aynı kalır, tekrar süresi mevcut seviyeye göre ayarlanır
+                    const hardInterval = srsIntervals[currentState.level] || 1;
+                    nextDueDate.setDate(nextDueDate.getDate() + hardInterval);
+                    break;
+                case 'good':
+                    currentState.level++;
+                    const goodInterval = srsIntervals[currentState.level] || srsIntervals[srsIntervals.length-1];
+                    nextDueDate.setDate(nextDueDate.getDate() + goodInterval);
+                    break;
+                case 'easy':
+                    currentState.level += 2;
+                    const easyInterval = srsIntervals[currentState.level] || srsIntervals[srsIntervals.length-1];
+                    nextDueDate.setDate(nextDueDate.getDate() + easyInterval);
+                    break;
+            }
+            
+            if (rating !== 'again') {
+                 currentState.dueDate = nextDueDate.toISOString().split('T')[0];
+            }
+           
+            states[questionId] = currentState;
+            localStorage.setItem('questionStates', JSON.stringify(states));
+            
+            dueQuestionsPool.shift();
+            displayQuestion();
         }
 
         function updateStats() {
-            statsEl.textContent = `Kalan Soru: ${questionPool.length} / ${totalQuestionCount}`;
+            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
+            const knownCount = Object.keys(states).filter(id => states[id].level > 0).length;
+            statsEl.textContent = `Bugün Kalan: ${dueQuestionsPool.length} | Öğrenilen: ${knownCount}/${allQuestions.length || '...'}`;
+        }
+        
+        function resetProgress() {
+            if (confirm("Tüm öğrenme ilerlemeniz silinecek ve her şeye en baştan başlayacaksınız. Bu işlem geri alınamaz. Emin misiniz?")) {
+                localStorage.removeItem('questionStates');
+                location.reload();
+            }
         }
 
-        nextBtn.addEventListener('click', () => {
-            questionPool.shift();
-            displayQuestion();
-        });
-
+        // --- EVENT LISTENERS ---
+        srsAgainBtn.addEventListener('click', () => updateQuestionState('again'));
+        srsHardBtn.addEventListener('click', () => updateQuestionState('hard'));
+        srsGoodBtn.addEventListener('click', () => updateQuestionState('good'));
+        srsEasyBtn.addEventListener('click', () => updateQuestionState('easy'));
+        resetBtn.addEventListener('click', resetProgress);
+        speakBtn.addEventListener('click', () => { if (audioPlayer.src) audioPlayer.play(); });
+        
+        // --- TESTİ BAŞLAT ---
         startQuiz();
     </script>
-
 </body>
 </html>
