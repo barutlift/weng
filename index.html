@@ -5,135 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WEng - Akıllı Tekrar Sistemi</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #2c3e50;
-            color: #ecf0f1;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .quiz-container {
-            background-color: #34495e;
-            border-radius: 10px;
-            padding: 30px;
-            width: 100%;
-            max-width: 800px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-            position: relative;
-        }
-        .question-header {
-            border-bottom: 2px solid #7f8c8d;
-            padding-bottom: 15px;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .sentence {
-            font-size: 1.4em;
-            font-style: italic;
-            margin-bottom: 0;
-            flex-grow: 1;
-        }
-        .prompt {
-            font-size: 1.2em;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        .options-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        .option {
-            background-color: #7f8c8d;
-            border: 2px solid transparent;
-            border-radius: 5px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            display: flex;
-            align-items: center;
-        }
-        .option:hover {
-            background-color: #95a5a6;
-        }
-        .option.correct {
-            background-color: #27ae60;
-            color: white;
-            border-color: #2ecc71;
-        }
-        .option.incorrect {
-            background-color: #c0392b;
-            color: white;
-            border-color: #e74c3c;
-        }
-        .option-letter {
-            font-weight: bold;
-            margin-right: 15px;
-            background-color: rgba(0,0,0,0.2);
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-shrink: 0;
-        }
-        .controls {
-            margin-top: 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        #reset-btn, #final-reset-btn {
-            background: none;
-            border: 1px solid #c0392b;
-            color: #c0392b;
-            padding: 8px 12px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 0.9em;
-            transition: all 0.2s ease-in-out;
-        }
-        #reset-btn:hover, #final-reset-btn:hover {
-            background: #c0392b;
-            color: white;
-        }
-        .stats {
-            position: absolute;
-            top: 15px;
-            right: 25px;
-            font-size: 0.9em;
-            color: #bdc3c7;
-            text-align: right;
-        }
-        #speak-btn {
-            font-size: 1.5em;
-            cursor: pointer;
-            user-select: none;
-        }
-        .srs-btn {
-            color: white;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 5px;
-            font-size: 1em;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-        .srs-btn:hover {
-            opacity: 0.9;
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #2c3e50; color: #ecf0f1; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
+        .quiz-container { background-color: #34495e; border-radius: 10px; padding: 30px; width: 100%; max-width: 800px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); position: relative; }
+        .question-header { border-bottom: 2px solid #7f8c8d; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        .sentence { font-size: 1.4em; font-style: italic; margin-bottom: 0; flex-grow: 1; }
+        .prompt { font-size: 1.2em; font-weight: bold; margin-top: 10px; }
+        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .option { background-color: #7f8c8d; border: 2px solid transparent; border-radius: 5px; padding: 15px; cursor: pointer; transition: all 0.2s ease-in-out; display: flex; align-items: center; }
+        .option:hover { background-color: #95a5a6; }
+        .option.correct { background-color: #27ae60; color: white; border-color: #2ecc71; }
+        .option.incorrect { background-color: #c0392b; color: white; border-color: #e74c3c; }
+        .option-letter { font-weight: bold; margin-right: 15px; background-color: rgba(0,0,0,0.2); border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
+        .controls { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
+        #reset-btn, #final-reset-btn { background: none; border: 1px solid #c0392b; color: #c0392b; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: all 0.2s ease-in-out; }
+        #reset-btn:hover, #final-reset-btn:hover { background: #c0392b; color: white; }
+        .stats { position: absolute; top: 15px; right: 25px; font-size: 0.9em; color: #bdc3c7; text-align: right; }
+        #speak-btn { font-size: 1.5em; cursor: pointer; user-select: none; }
+        .srs-btn { color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1em; cursor: pointer; transition: opacity 0.2s; }
+        .srs-btn:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
-
     <div class="quiz-container">
         <div id="stats" class="stats"></div>
         <div id="question-area">
@@ -154,11 +46,8 @@
             </div>
         </div>
     </div>
-
     <audio id="audio-player"></audio>
-
     <script>
-        // --- ELEMENT REFERANSLARI ---
         const sentenceEl = document.getElementById('sentence');
         const promptEl = document.getElementById('prompt');
         const optionsContainerEl = document.getElementById('options-container');
@@ -173,20 +62,15 @@
         const srsEasyBtn = document.getElementById('srs-easy');
         const quizContainer = document.querySelector('.quiz-container');
 
-        // --- GLOBAL AYARLAR ---
-        const MAX_SESSION_SIZE = 1000;         // GÜNDE GÖRÜLECEK TOPLAM MAKSİMUM SORU
-        const DAILY_NEW_QUESTION_LIMIT = 100; // GÜNLÜK ÖĞRENİLECEK MAKSİMUM YENİ SORU
+        const MAX_SESSION_SIZE = 1000;
+        const DAILY_NEW_QUESTION_LIMIT = 100;
         
-        // --- GLOBAL DEĞİŞKENLER ---
         let dueQuestionsPool = [];
         let allQuestions = [];
         let answered = false;
         let currentQuestion = null;
-
-        // --- SRS ARALIKLARI (GÜN OLARAK) ---
         const srsIntervals = [1, 3, 7, 15, 30, 60, 120, 240, 360];
 
-        // --- ANA FONKSİYON ---
         async function startQuiz() {
             try {
                 if (allQuestions.length === 0) {
@@ -208,15 +92,14 @@
                 const today = new Date();
                 today.setHours(0, 0, 0, 0);
 
-                // --- YENİ DENGELİ OTURUM MANTIĞI ---
                 const reviewQuestions = [];
                 const newQuestions = [];
                 for (const q of allQuestions) {
                     const state = states[q.questionId];
-                    if (state) {
+                    if (state && state.dueDate) {
                         const dueDate = new Date(state.dueDate);
                         if (dueDate <= today) reviewQuestions.push(q);
-                    } else {
+                    } else if (!state) {
                         newQuestions.push(q);
                     }
                 }
@@ -242,13 +125,8 @@
             }
         }
         
-        // --- DİĞER FONKSİYONLAR (DEĞİŞİKLİK GEREKTİRMİYOR) ---
-        // displayQuestion, selectAnswer, updateSrsButtonLabels vb. öncekiyle aynı...
         function displayQuestion() {
-            if (dueQuestionsPool.length === 0) {
-                startQuiz();
-                return;
-            }
+            if (dueQuestionsPool.length === 0) { startQuiz(); return; }
             answered = false;
             srsControlsEl.style.display = 'none';
             updateStats();
@@ -273,13 +151,12 @@
             if (answered) return;
             answered = true;
             const correctKey = currentQuestion.correctAnswer;
-            const isCorrect = selectedKey === correctKey;
             Array.from(optionsContainerEl.children).forEach(option => {
                 option.style.cursor = 'default';
                 if (option.dataset.key === correctKey) option.classList.add('correct');
                 else if (option.dataset.key === selectedKey) option.classList.add('incorrect');
             });
-            updateSrsButtonLabels(isCorrect);
+            updateSrsButtonLabels(selectedKey === correctKey);
             srsControlsEl.style.display = 'flex';
         }
         
@@ -307,10 +184,8 @@
             const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
             const todayStr = new Date().toISOString().split('T')[0];
             let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || '{ "date": "'+todayStr+'", "newQuestionsSeen": 0 }');
-            if (dailyStats.date !== todayStr) {
-               dailyStats.newQuestionsSeen = 0;
-            }
-            const knownCount = Object.keys(states).filter(id => states[id].level > 0).length;
+            if (dailyStats.date !== todayStr) dailyStats.newQuestionsSeen = 0;
+            const knownCount = Object.keys(states).filter(id => states[id] && states[id].level > 0).length;
             statsEl.innerHTML = `Bugün Kalan: ${dueQuestionsPool.length}<br>Yeni: ${dailyStats.newQuestionsSeen}/${DAILY_NEW_QUESTION_LIMIT}<br>Öğrenilen: ${knownCount}/${allQuestions.length || '...'}`;
         }
 
@@ -319,9 +194,11 @@
             const today = new Date();
             today.setHours(0,0,0,0);
             for (const qId in questionStates) {
-                const dueDate = new Date(questionStates[qId].dueDate);
-                 if (dueDate > today && (!nextQuestionDate || dueDate < nextQuestionDate)) {
-                    nextQuestionDate = dueDate;
+                if (questionStates[qId].dueDate) {
+                    const dueDate = new Date(questionStates[qId].dueDate);
+                    if (dueDate > today && (!nextQuestionDate || dueDate < nextQuestionDate)) {
+                        nextQuestionDate = dueDate;
+                    }
                 }
             }
             let message = `<h1>Harika!</h1><p>Bugünlük tüm soruları tamamladınız.</p>`;
@@ -359,13 +236,14 @@
                 const reInsertIndex = Math.min(10, dueQuestionsPool.length);
                 dueQuestionsPool.splice(reInsertIndex, 0, currentQuestion);
             } else {
-                 if (rating === 'hard') currentState.level = Math.max(0, currentState.level);
-                 else if (rating === 'good') currentState.level++;
-                 else if (rating === 'easy') currentState.level += 2;
+                if (rating === 'hard') currentState.level = Math.max(0, currentState.level);
+                else if (rating === 'good') currentState.level++;
+                else if (rating === 'easy') currentState.level += 2;
                 
-                 const intervalDays = srsIntervals[Math.min(currentState.level, srsIntervals.length - 1)] || 1;
-                 nextDueDate.setDate(nextDueDate.getDate() + intervalDays);
-                 currentState.dueDate = nextDueDate.toISOString().split('T')[0];
+                const intervalIndex = Math.min(currentState.level, srsIntervals.length - 1);
+                const intervalDays = srsIntervals[intervalIndex] || 1;
+                nextDueDate.setDate(nextDueDate.getDate() + intervalDays);
+                currentState.dueDate = nextDueDate.toISOString().split('T')[0];
             }
            
             states[questionId] = currentState;
@@ -384,13 +262,12 @@
         }
         
         function formatInterval(days) {
-            if (days < 1) return `${Math.round(days * 24 * 60)}dk`;
+            if (days < 1) return `~10dk`;
             if (days < 30) return `${days}g`;
             const months = Math.round(days / 30);
             return `~${months}ay`;
         }
-
-        // --- EVENT LISTENERS ---
+        
         srsAgainBtn.addEventListener('click', () => updateQuestionState('again'));
         srsHardBtn.addEventListener('click', () => updateQuestionState('hard'));
         srsGoodBtn.addEventListener('click', () => updateQuestionState('good'));
@@ -398,7 +275,6 @@
         resetBtn.addEventListener('click', resetProgress);
         speakBtn.addEventListener('click', () => { if (audioPlayer.src) audioPlayer.play(); });
         
-        // --- TESTİ BAŞLAT ---
         startQuiz();
     </script>
 </body>
