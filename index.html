@@ -23,10 +23,24 @@
         #speak-btn { font-size: 1.5em; cursor: pointer; user-select: none; }
         .srs-btn { color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1em; cursor: pointer; transition: opacity 0.2s; }
         .srs-btn:hover { opacity: 0.9; }
+
+        /* YENİ EKLENEN STİLLER */
+        .status-label {
+            position: absolute;
+            top: 15px;
+            left: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-new { color: #f1c40f; } /* Sarı */
+        .status-review { color: #e67e22; } /* Turuncu */
     </style>
 </head>
 <body>
     <div class="quiz-container">
+        <div id="question-status" class="status-label"></div>
+
         <div id="stats" class="stats"></div>
         <div id="question-area">
             <div class="question-header">
@@ -61,10 +75,9 @@
         const srsGoodBtn = document.getElementById('srs-good');
         const srsEasyBtn = document.getElementById('srs-easy');
         const quizContainer = document.querySelector('.quiz-container');
+        const statusLabel = document.getElementById('question-status'); // YENİ ELEMENT REFERANSI
 
-        // --- GÜNLÜK OTURUM AYARLARI (GÜNCELLENDİ) ---
-        const DAILY_NEW_QUESTION_LIMIT = 200; // Limit 200'e çıkarıldı
-        // MAX_SESSION_SIZE sabiti kaldırıldı, artık üst limit yok.
+        const DAILY_NEW_QUESTION_LIMIT = 200;
         
         let dueQuestionsPool = [];
         let allQuestions = [];
@@ -86,7 +99,6 @@
                 const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
                 const todayStr = new Date().toISOString().split('T')[0];
                 let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || '{}');
-                // GÜNLÜK KONTROL
                 if (dailyStats.date !== todayStr) {
                     dailyStats = { date: todayStr, newQuestionsSeen: 0 };
                     localStorage.setItem('dailyStats', JSON.stringify(dailyStats));
@@ -110,8 +122,6 @@
                 const newQuestionsAllowedToday = DAILY_NEW_QUESTION_LIMIT - dailyStats.newQuestionsSeen;
                 const newQuestionsForSession = newQuestions.slice(0, Math.max(0, newQuestionsAllowedToday));
                 
-                // ÜST LİMİT MANTIĞI KALDIRILDI
-                // Artık tüm tekrar soruları havuza ekleniyor.
                 dueQuestionsPool = [...reviewQuestions, ...newQuestionsForSession];
 
                 if (dueQuestionsPool.length === 0 && allQuestions.length > 0) {
@@ -133,6 +143,18 @@
             srsControlsEl.style.display = 'none';
             updateStats();
             currentQuestion = dueQuestionsPool[0];
+
+            // YENİ: Soru durumunu kontrol et ve etiketi güncelle
+            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
+            const isNew = !states[currentQuestion.questionId];
+            if(isNew) {
+                statusLabel.textContent = 'YENİ';
+                statusLabel.className = 'status-label status-new';
+            } else {
+                statusLabel.textContent = 'ESKİ';
+                statusLabel.className = 'status-label status-review';
+            }
+            
             audioPlayer.src = `./audio/${currentQuestion.questionId}.mp3`;
             sentenceEl.innerHTML = currentQuestion.sentence.replace(/\[__.*?__\]/g, `<b>[_______]</b>`);
             promptEl.textContent = currentQuestion.prompt;
