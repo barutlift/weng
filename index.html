@@ -62,8 +62,9 @@
         const srsEasyBtn = document.getElementById('srs-easy');
         const quizContainer = document.querySelector('.quiz-container');
 
-        const MAX_SESSION_SIZE = 1000;
-        const DAILY_NEW_QUESTION_LIMIT = 100;
+        // --- GÜNLÜK OTURUM AYARLARI (GÜNCELLENDİ) ---
+        const DAILY_NEW_QUESTION_LIMIT = 200; // Limit 200'e çıkarıldı
+        // MAX_SESSION_SIZE sabiti kaldırıldı, artık üst limit yok.
         
         let dueQuestionsPool = [];
         let allQuestions = [];
@@ -85,8 +86,10 @@
                 const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
                 const todayStr = new Date().toISOString().split('T')[0];
                 let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || '{}');
+                // GÜNLÜK KONTROL
                 if (dailyStats.date !== todayStr) {
                     dailyStats = { date: todayStr, newQuestionsSeen: 0 };
+                    localStorage.setItem('dailyStats', JSON.stringify(dailyStats));
                 }
 
                 const today = new Date();
@@ -107,10 +110,9 @@
                 const newQuestionsAllowedToday = DAILY_NEW_QUESTION_LIMIT - dailyStats.newQuestionsSeen;
                 const newQuestionsForSession = newQuestions.slice(0, Math.max(0, newQuestionsAllowedToday));
                 
-                const reviewSlotsAvailable = MAX_SESSION_SIZE - newQuestionsForSession.length;
-                const reviewQuestionsForSession = reviewQuestions.slice(0, Math.max(0, reviewSlotsAvailable));
-                
-                dueQuestionsPool = [...reviewQuestionsForSession, ...newQuestionsForSession];
+                // ÜST LİMİT MANTIĞI KALDIRILDI
+                // Artık tüm tekrar soruları havuza ekleniyor.
+                dueQuestionsPool = [...reviewQuestions, ...newQuestionsForSession];
 
                 if (dueQuestionsPool.length === 0 && allQuestions.length > 0) {
                     displayNoMoreQuestionsMessage(states);
@@ -183,7 +185,7 @@
         function updateStats() {
             const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
             const todayStr = new Date().toISOString().split('T')[0];
-            let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || '{ "date": "'+todayStr+'", "newQuestionsSeen": 0 }');
+            let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || `{ "date": "${todayStr}", "newQuestionsSeen": 0 }`);
             if (dailyStats.date !== todayStr) dailyStats.newQuestionsSeen = 0;
             const knownCount = Object.keys(states).filter(id => states[id] && states[id].level > 0).length;
             statsEl.innerHTML = `Bugün Kalan: ${dueQuestionsPool.length}<br>Yeni: ${dailyStats.newQuestionsSeen}/${DAILY_NEW_QUESTION_LIMIT}<br>Öğrenilen: ${knownCount}/${allQuestions.length || '...'}`;
@@ -219,7 +221,7 @@
             
             if (isNewQuestion && rating !== 'again') {
                 const todayStr = new Date().toISOString().split('T')[0];
-                let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || '{ "date": "'+todayStr+'", "newQuestionsSeen": 0 }');
+                let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || `{ "date": "${todayStr}", "newQuestionsSeen": 0 }`);
                 if (dailyStats.date !== todayStr) {
                     dailyStats = { date: todayStr, newQuestionsSeen: 1 };
                 } else {
@@ -262,7 +264,7 @@
         }
         
         function formatInterval(days) {
-            if (days < 1) return `~10dk`;
+            if (!days || days < 1) return `~10dk`;
             if (days < 30) return `${days}g`;
             const months = Math.round(days / 30);
             return `~${months}ay`;
