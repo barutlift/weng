@@ -63166,5 +63166,325 @@
         "correctAnswer": "b"
       }
     ]
+  },
+  {
+    "word": "(a case of) dog eat dog",
+    "meaning": "a situation in which people will do anything to be successful, even if what they do harms other people",
+    "questions": [
+      {
+        "questionId": "dog_eat_dog_definition_1",
+        "questionType": "definition_in_context",
+        "sentence": "The tech startup scene can be a case of dog eat dog, with companies fiercely competing for funding and market share.",
+        "prompt": "What does 'dog eat dog' mean in the context of the sentence?",
+        "options": {
+          "a": "A collaborative environment where companies support each other.",
+          "b": "A fiercely competitive environment where companies prioritize their own success, even at the expense of others.",
+          "c": "A relaxed environment where companies prioritize employee well-being over profit.",
+          "d": "A regulated environment where companies must adhere to strict ethical guidelines."
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "dog_eat_dog_synonym_2",
+        "questionType": "synonymous_sentence",
+        "sentence": "It's a case of dog eat dog in the political arena, where candidates will often resort to personal attacks to discredit their opponents.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "The political arena is characterized by widespread cooperation and mutual respect.",
+          "b": "The political arena is a ruthless environment where individuals are willing to undermine each other to succeed.",
+          "c": "The political arena is governed by strict rules of decorum and ethical conduct.",
+          "d": "The political arena encourages collaborative problem-solving and bipartisan support."
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "(a) way with",
+    "meaning": "a special ability or talent for dealing with someone or something",
+    "questions": [
+      {
+        "questionId": "way_with_definition_3",
+        "questionType": "definition_in_context",
+        "sentence": "She has a way with children, always knowing how to make them laugh and feel comfortable.",
+        "prompt": "What does it mean to have 'a way with' someone in this context?",
+        "options": {
+          "a": "To have difficulty communicating with someone.",
+          "b": "To possess a special talent or ability to easily and effectively interact with someone.",
+          "c": "To manipulate or deceive someone.",
+          "d": "To be easily annoyed by someone's behaviour."
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "way_with_synonym_4",
+        "questionType": "synonymous_sentence",
+        "sentence": "He had a way with words, captivating audiences with his eloquent speeches and insightful commentary.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "He struggled to articulate his thoughts effectively.",
+          "b": "He possessed a remarkable skill in using language.",
+          "c": "He often used jargon and technical terms to confuse his audience.",
+          "d": "He was known for his blunt and insensitive remarks."
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "(a) word in edgeways",
+    "meaning": "an opportunity to say something",
+    "questions": [
+      {
+        "questionId": "word_in_edgeways_definition_5",
+        "questionType": "definition_in_context",
+        "sentence": "The discussion was so heated that I couldn't get a word in edgeways to offer my perspective.",
+        "prompt": "What does 'couldn't get a word in edgeways' mean in this context?",
+        "options": {
+          "a": "Was able to easily express my opinion.",
+          "b": "Was unable to interrupt or contribute to the conversation.",
+          "c": "Was asked to lead the discussion.",
+          "d": "Was too shy to speak up."
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "word_in_edgeways_synonym_6",
+        "questionType": "synonymous_sentence",
+        "sentence": "The professor lectured for so long that students barely managed to get a word in edgeways to ask questions.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "The students had ample opportunity to interrupt the professor.",
+          "b": "The students found it extremely difficult to interject or pose questions.",
+          "c": "The students were encouraged to participate actively in the lecture.",
+          "d": "The students were penalized for interrupting the professor."
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "(and) you can see that",
+    "meaning": "used to introduce a conclusion or summarise a point",
+    "questions": [
+      {
+        "questionId": "you_can_see_that_definition_7",
+        "questionType": "definition_in_context",
+        "sentence": "After reviewing all the data and considering the various factors, you can see that the project is unlikely to succeed without significant changes.",
+        "prompt": "What is the function of 'you can see that' in this sentence?",
+        "options": {
+          "a": "To introduce a minor detail.",
+          "b": "To introduce a conclusion based on the preceding information.",
+          "c": "To contradict the previous statement.",
+          "d": "To express uncertainty about the situation."
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "you_can_see_that_synonym_8",
+        "questionType": "synonymous_sentence",
+        "sentence": "Considering the evidence, and you can see that the defendant's alibi is weak and unconvincing.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "Considering the evidence, it is apparent that the defendant's alibi is weak and unconvincing.",
+          "b": "Considering the evidence, it is possible that the defendant's alibi is strong and convincing.",
+          "c": "Considering the evidence, it remains unclear whether the defendant has an alibi.",
+          "d": "Considering the evidence, the defendant's alibi is irrelevant to the case."
+        },
+        "correctAnswer": "a"
+      }
+    ]
+  },
+  {
+    "word": "(are) less likely to",
+    "meaning": "having a lower probability of happening or being true",
+    "questions": [
+      {
+        "questionId": "less_likely_to_definition_9",
+        "questionType": "definition_in_context",
+        "sentence": "Students who skip classes are less likely to succeed in their exams.",
+        "prompt": "What does 'less likely to' mean in the sentence?",
+        "options": {
+          "a": "Are certain to succeed.",
+          "b": "Have a lower chance of succeeding.",
+          "c": "Are guaranteed to fail.",
+          "d": "Have an equal chance of succeeding or failing."
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "less_likely_to_synonym_10",
+        "questionType": "synonymous_sentence",
+        "sentence": "Individuals who engage in regular exercise are less likely to develop heart disease.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "Individuals who exercise regularly have a higher probability of developing heart disease.",
+          "b": "Individuals who exercise regularly have a reduced risk of developing heart disease.",
+          "c": "Regular exercise has no impact on the risk of developing heart disease.",
+          "d": "Individuals who don't exercise will certainly develop heart disease."
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "(be) due to the fact that",
+    "meaning": "because of something",
+    "questions": [
+      {
+        "questionId": "due_to_the_fact_that_definition_1",
+        "questionType": "definition_in_context",
+        "sentence": "The project's delay was due to the fact that essential materials were unavailable.",
+        "prompt": "What does 'due to the fact that' mean in this context?",
+        "options": {
+          "a": "Despite the situation where",
+          "b": "Resulting from the circumstance that",
+          "c": "In anticipation that",
+          "d": "Regardless of whether"
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "due_to_the_fact_that_synonym_2",
+        "questionType": "synonymous_sentence",
+        "sentence": "His application was rejected due to the fact that he lacked the necessary qualifications.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "His application was rejected although he had many qualifications.",
+          "b": "His application was rejected because he lacked the necessary qualifications.",
+          "c": "His application was rejected in spite of his impressive qualifications.",
+          "d": "His application was rejected on the condition he lacked the necessary qualifications."
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "(be) on tenterhooks",
+    "meaning": "in a state of suspense or agitation",
+    "questions": [
+      {
+        "questionId": "on_tenterhooks_definition_1",
+        "questionType": "definition_in_context",
+        "sentence": "She was on tenterhooks awaiting the results of her medical tests.",
+        "prompt": "What does 'on tenterhooks' mean in this sentence?",
+        "options": {
+          "a": "Feeling confident and assured",
+          "b": "Feeling anxious and uncertain",
+          "c": "Feeling bored and disinterested",
+          "d": "Feeling relaxed and carefree"
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "on_tenterhooks_synonym_2",
+        "questionType": "synonymous_sentence",
+        "sentence": "The entire company was on tenterhooks during the hostile takeover bid.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "The entire company felt calm and secure during the takeover bid.",
+          "b": "The entire company felt indifferent to the takeover bid.",
+          "c": "The entire company was in a state of high anxiety during the takeover bid.",
+          "d": "The entire company was confident of a successful outcome of the takeover bid."
+        },
+        "correctAnswer": "c"
+      }
+    ]
+  },
+  {
+    "word": "(be) on the ball",
+    "meaning": "alert and competent",
+    "questions": [
+      {
+        "questionId": "on_the_ball_definition_1",
+        "questionType": "definition_in_context",
+        "sentence": "Our new project manager is really on the ball; she anticipates potential problems before they arise.",
+        "prompt": "What does 'on the ball' mean in this context?",
+        "options": {
+          "a": "Unorganized and inefficient",
+          "b": "Attentive and capable",
+          "c": "Distracted and unaware",
+          "d": "Slow and lethargic"
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "on_the_ball_synonym_2",
+        "questionType": "synonymous_sentence",
+        "sentence": "You need to be on the ball if you want to succeed in this competitive industry.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "You need to be incompetent if you want to succeed in this competitive industry.",
+          "b": "You need to be proactive and efficient if you want to succeed in this competitive industry.",
+          "c": "You need to be passive and compliant if you want to succeed in this competitive industry.",
+          "d": "You need to be negligent and careless if you want to succeed in this competitive industry."
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "(be) on the tip of your tongue",
+    "meaning": "about to be said or recalled but momentarily forgotten",
+    "questions": [
+      {
+        "questionId": "on_the_tip_of_your_tongue_definition_1",
+        "questionType": "definition_in_context",
+        "sentence": "Her name was on the tip of my tongue, but I just couldn't remember it.",
+        "prompt": "What does 'on the tip of my tongue' mean in this sentence?",
+        "options": {
+          "a": "Easily remembered",
+          "b": "Completely forgotten",
+          "c": "Almost remembered",
+          "d": "Difficult to pronounce"
+        },
+        "correctAnswer": "c"
+      },
+      {
+        "questionId": "on_the_tip_of_your_tongue_synonym_2",
+        "questionType": "synonymous_sentence",
+        "sentence": "The solution to the problem was on the tip of my tongue, tantalizingly close but just out of reach.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "The solution to the problem was immediately obvious.",
+          "b": "The solution to the problem was vaguely familiar but I couldn't quite recall it.",
+          "c": "The solution to the problem was something I had never considered.",
+          "d": "The solution to the problem was a complete mystery."
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "(be) regarded as",
+    "meaning": "to be considered or thought of in a particular way",
+    "questions": [
+      {
+        "questionId": "regarded_as_definition_1",
+        "questionType": "definition_in_context",
+        "sentence": "She is widely regarded as one of the most influential scientists of our time.",
+        "prompt": "What does 'regarded as' mean in this context?",
+        "options": {
+          "a": "Ignored by",
+          "b": "Considered to be",
+          "c": "Disliked by",
+          "d": "Unknown to"
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "regarded_as_synonym_2",
+        "questionType": "synonymous_sentence",
+        "sentence": "His actions were regarded as a betrayal of trust.",
+        "prompt": "Which sentence has the closest meaning to the original?",
+        "options": {
+          "a": "His actions were considered to be a violation of trust.",
+          "b": "His actions were inconsequential to the concept of trust.",
+          "c": "His actions reinforced the importance of trust.",
+          "d": "His actions were unrelated to the concept of trust."
+        },
+        "correctAnswer": "a"
+      }
+    ]
   }
 ]
