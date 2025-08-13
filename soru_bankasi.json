@@ -1,226 +1,136 @@
 [
   {
-    "word": "dog eat dog",
-    "meaning": "used to describe a situation in which people will do anything to be successful, even if it harms other people",
+    "word": "derange",
+    "meaning": "to make someone unable to think or behave normally; to make something untidy or disorganized",
     "questions": [
       {
-        "questionId": "dog_eat_dog_fill_in_1",
+        "questionId": "derange_fill_in_1",
         "questionType": "fill_in_the_blank",
-        "sentence": "The corporate world can be a [__WORD__] environment, where ambition often trumps ethical considerations.",
+        "sentence": "The constant noise from the construction site began to [__WORD__] her, making it difficult to concentrate on her work.",
         "prompt": "Choose the correct option to complete the sentence:",
         "options": {
-          "a": "cat and mouse",
-          "b": "dog eat dog",
-          "c": "carrot and stick",
-          "d": "give and take"
+          "a": "alleviate",
+          "b": "derange",
+          "c": "appease",
+          "d": "assuage"
         },
         "correctAnswer": "b"
       },
       {
-        "questionId": "dog_eat_dog_definition_2",
+        "questionId": "derange_definition_2",
         "questionType": "definition_in_context",
-        "sentence": "The competition to get into the top universities has become so intense, it's a real dog eat dog world.",
-        "prompt": "In this sentence, 'dog eat dog' means:",
+        "sentence": "The sudden trauma seemed to derange his mind, leaving him confused and disoriented.",
+        "prompt": "In this sentence, 'derange' means:",
         "options": {
-          "a": "a friendly contest",
-          "b": "a situation where loyalty is highly valued",
-          "c": "a ruthless struggle for success",
-          "d": "a fair and equitable process"
+          "a": "to enlighten",
+          "b": "to clarify",
+          "c": "to mentally unbalance",
+          "d": "to soothe"
         },
         "correctAnswer": "c"
       },
       {
-        "questionId": "dog_eat_dog_synonym_3",
+        "questionId": "derange_synonym_3",
         "questionType": "synonym",
         "sentence": "",
-        "prompt": "Which phrase is synonymous with a ruthlessly competitive environment?",
+        "prompt": "Choose the word that is a synonym for disarrange:",
         "options": {
-          "a": "Cooperative endeavor",
-          "b": "Dog eat dog",
-          "c": "Harmonious interaction",
-          "d": "Mutual support system"
-        },
-        "correctAnswer": "b"
-      }
-    ]
-  },
-  {
-    "word": "a way with",
-    "meaning": "a special ability or talent for dealing with something",
-    "questions": [
-      {
-        "questionId": "a_way_with_fill_in_1",
-        "questionType": "fill_in_the_blank",
-        "sentence": "She has [__WORD__] words; she can always articulate complex ideas with remarkable clarity.",
-        "prompt": "Choose the correct option to complete the sentence:",
-        "options": {
-          "a": "a knack for",
-          "b": "a way with",
-          "c": "a penchant for",
-          "d": "an aversion to"
-        },
-        "correctAnswer": "b"
-      },
-      {
-        "questionId": "a_way_with_definition_2",
-        "questionType": "definition_in_context",
-        "sentence": "He has a way with animals; they always seem to calm down around him.",
-        "prompt": "In this sentence, 'a way with' means:",
-        "options": {
-          "a": "a dislike for",
-          "b": "a special skill or talent for dealing with",
-          "c": "a tendency to avoid",
-          "d": "a physical attraction to"
-        },
-        "correctAnswer": "b"
-      },
-      {
-        "questionId": "a_way_with_synonym_3",
-        "questionType": "synonym",
-        "sentence": "",
-        "prompt": "Which phrase is most similar to 'possessing a talent for'?",
-        "options": {
-          "a": "a way with",
-          "b": "a lack of",
-          "c": "a disregard for",
-          "d": "an indifference to"
-        },
-        "correctAnswer": "a"
-      }
-    ]
-  },
-  {
-    "word": "a word in edgeways",
-    "meaning": "an opportunity to say something",
-    "questions": [
-      {
-        "questionId": "a_word_in_edgeways_fill_in_1",
-        "questionType": "fill_in_the_blank",
-        "sentence": "The meeting was so dominated by the CEO that no one else could get [__WORD__].",
-        "prompt": "Choose the correct option to complete the sentence:",
-        "options": {
-          "a": "a thought fully",
-          "b": "a word in edgeways",
-          "c": "a lecture completely",
-          "d": "a response immediately"
-        },
-        "correctAnswer": "b"
-      },
-      {
-        "questionId": "a_word_in_edgeways_definition_2",
-        "questionType": "definition_in_context",
-        "sentence": "With her constant interruptions, it was impossible to get a word in edgeways.",
-        "prompt": "In this sentence, 'a word in edgeways' means:",
-        "options": {
-          "a": "an extremely long speech",
-          "b": "an opportunity to speak briefly",
-          "c": "a comprehensive explanation",
-          "d": "an argument in depth"
-        },
-        "correctAnswer": "b"
-      },
-      {
-        "questionId": "a_word_in_edgeways_synonym_3",
-        "questionType": "synonym",
-        "sentence": "",
-        "prompt": "Which of the following options is closest in meaning to 'a chance to contribute to a conversation'?",
-        "options": {
-          "a": "a silent agreement",
-          "b": "a word in edgeways",
-          "c": "a complete monologue",
-          "d": "an unsolicited lecture"
-        },
-        "correctAnswer": "b"
-      }
-    ]
-  },
-  {
-    "word": "and you can see that",
-    "meaning": "used to emphasize or conclude a point",
-    "questions": [
-      {
-        "questionId": "and_you_can_see_that_fill_in_1",
-        "questionType": "fill_in_the_blank",
-        "sentence": "The evidence overwhelmingly points to his guilt, [__WORD__] he is indeed responsible for the crime.",
-        "prompt": "Choose the correct option to complete the sentence:",
-        "options": {
-          "a": "however it feels like",
-          "b": "and you can see that",
-          "c": "it is never like that",
-          "d": "or it does not suggest"
-        },
-        "correctAnswer": "b"
-      },
-      {
-        "questionId": "and_you_can_see_that_definition_2",
-        "questionType": "definition_in_context",
-        "sentence": "Sales have increased dramatically this quarter, and you can see that our marketing strategy is working.",
-        "prompt": "In this sentence, 'and you can see that' means:",
-        "options": {
-          "a": "suggesting there is no correlation.",
-          "b": "emphasizing a clear consequence or result",
-          "c": "doubting an underlying cause",
-          "d": "introducing the previous concept"
-        },
-        "correctAnswer": "b"
-      },
-      {
-        "questionId": "and_you_can_see_that_synonym_3",
-        "questionType": "synonym",
-        "sentence": "",
-        "prompt": "Which phrase could replace 'and you can see that' in terms of emphasizing a resulting conclusion?",
-        "options": {
-          "a": "furthermore",
-          "b": "subsequently",
-          "c": "hence",
-          "d": "conversely"
+          "a": "organize",
+          "b": "catalog",
+          "c": "derange",
+          "d": "arrange"
         },
         "correctAnswer": "c"
       }
     ]
   },
   {
-    "word": "less likely to",
-    "meaning": "having a smaller chance of something happening",
+    "word": "deranged",
+    "meaning": "unable to behave or think normally, especially because of mental illness",
     "questions": [
       {
-        "questionId": "less_likely_to_fill_in_1",
+        "questionId": "deranged_fill_in_1",
         "questionType": "fill_in_the_blank",
-        "sentence": "Those who exercise regularly are [__WORD__] develop heart disease.",
+        "sentence": "The escaped convict exhibited [__WORD__] behavior, muttering incoherently and pacing erratically.",
         "prompt": "Choose the correct option to complete the sentence:",
         "options": {
-          "a": "more apt to",
-          "b": "less likely to",
-          "c": "guaranteed to",
-          "d": "certainly for"
+          "a": "composed",
+          "b": "deranged",
+          "c": "tranquil",
+          "d": "stoic"
         },
         "correctAnswer": "b"
       },
       {
-        "questionId": "less_likely_to_definition_2",
+        "questionId": "deranged_definition_2",
         "questionType": "definition_in_context",
-        "sentence": "Students who skip classes are less likely to succeed academically.",
-        "prompt": "In this sentence, 'less likely to' means:",
+        "sentence": "His eyes held a wild, deranged look, making everyone around him uneasy.",
+        "prompt": "In this sentence, 'deranged' means:",
         "options": {
-          "a": "guaranteed to",
-          "b": "having a higher chance of",
-          "c": "almost certain not to",
-          "d": "equally likely to"
+          "a": "completely sane",
+          "b": "mentally unbalanced",
+          "c": "perfectly lucid",
+          "d": "entirely rational"
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "deranged_synonym_3",
+        "questionType": "synonym",
+        "sentence": "",
+        "prompt": "Choose the word that is a synonym for insane:",
+        "options": {
+          "a": "prudent",
+          "b": "deranged",
+          "c": "sensible",
+          "d": "rational"
+        },
+        "correctAnswer": "b"
+      }
+    ]
+  },
+  {
+    "word": "derby",
+    "meaning": "a type of boot or shoe that is fastened with laces",
+    "questions": [
+      {
+        "questionId": "derby_fill_in_1",
+        "questionType": "fill_in_the_blank",
+        "sentence": "He paired his tweed suit with a sturdy pair of brown leather [__WORD__] shoes for a classic, sophisticated look.",
+        "prompt": "Choose the correct option to complete the sentence:",
+        "options": {
+          "a": "flip-flops",
+          "b": "derby",
+          "c": "sandals",
+          "d": "loafers"
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "derby_definition_2",
+        "questionType": "definition_in_context",
+        "sentence": "For the formal occasion, he opted for a pair of polished black derbies.",
+        "prompt": "In this sentence, 'derbies' refers to:",
+        "options": {
+          "a": "a type of hat",
+          "b": "a style of trousers",
+          "c": "a kind of shoe",
+          "d": "a racing event"
         },
         "correctAnswer": "c"
       },
       {
-        "questionId": "less_likely_to_synonym_3",
+        "questionId": "derby_synonym_3",
         "questionType": "synonym",
         "sentence": "",
-        "prompt": "Which phrase is most similar in meaning to 'having a reduced probability'?",
+        "prompt": "Choose the word that is a synonym for blucher:",
         "options": {
-          "a": "more prone to",
-          "b": "less likely to",
-          "c": "assured of",
-          "d": "certain to"
+          "a": "brogue",
+          "b": "oxford",
+          "c": "derby",
+          "d": "monk strap"
         },
-        "correctAnswer": "b"
+        "correctAnswer": "c"
       }
     ]
   }
