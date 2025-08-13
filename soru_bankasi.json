@@ -1,31 +1,44 @@
 [
   {
-    "word": "a case of dog eat dog",
-    "meaning": "a situation in which people will do anything to be successful, even if it harms other people",
+    "word": "dog eat dog",
+    "meaning": "used to describe a situation in which people will do anything to be successful, even if it harms other people",
     "questions": [
       {
-        "questionId": "dog_eat_dog_definition_1",
-        "questionType": "definition_in_context",
-        "sentence": "The corporate takeover became [__WORD__], with ruthless executives battling for control, regardless of the consequences for their employees.",
-        "prompt": "Which phrase best fits the blank, describing a fiercely competitive and unscrupulous situation?",
+        "questionId": "dog_eat_dog_fill_in_1",
+        "questionType": "fill_in_the_blank",
+        "sentence": "The corporate world can be a [__WORD__] environment, where ambition often trumps ethical considerations.",
+        "prompt": "Choose the correct option to complete the sentence:",
         "options": {
-          "a": "a collaborative effort",
-          "b": "a case of dog eat dog",
-          "c": "a model of ethical behaviour",
-          "d": "a demonstration of mutual respect"
+          "a": "cat and mouse",
+          "b": "dog eat dog",
+          "c": "carrot and stick",
+          "d": "give and take"
         },
         "correctAnswer": "b"
       },
       {
-        "questionId": "dog_eat_dog_synonym_2",
-        "questionType": "synonymous_sentence",
-        "sentence": "The political landscape has become a case of dog eat dog, where candidates prioritize personal attacks over substantive policy debates.",
-        "prompt": "Which of the following sentences best captures the same meaning?",
+        "questionId": "dog_eat_dog_definition_2",
+        "questionType": "definition_in_context",
+        "sentence": "The competition to get into the top universities has become so intense, it's a real dog eat dog world.",
+        "prompt": "In this sentence, 'dog eat dog' means:",
         "options": {
-          "a": "The political arena is characterized by cooperation and compromise.",
-          "b": "The political arena is characterized by ruthless competition and self-interest.",
-          "c": "The political arena emphasizes fairness and equality.",
-          "d": "The political arena values honesty and transparency."
+          "a": "a friendly contest",
+          "b": "a situation where loyalty is highly valued",
+          "c": "a ruthless struggle for success",
+          "d": "a fair and equitable process"
+        },
+        "correctAnswer": "c"
+      },
+      {
+        "questionId": "dog_eat_dog_synonym_3",
+        "questionType": "synonym",
+        "sentence": "",
+        "prompt": "Which phrase is synonymous with a ruthlessly competitive environment?",
+        "options": {
+          "a": "Cooperative endeavor",
+          "b": "Dog eat dog",
+          "c": "Harmonious interaction",
+          "d": "Mutual support system"
         },
         "correctAnswer": "b"
       }
@@ -33,63 +46,89 @@
   },
   {
     "word": "a way with",
-    "meaning": "a natural ability or skill at doing something",
+    "meaning": "a special ability or talent for dealing with something",
     "questions": [
       {
-        "questionId": "a_way_with_definition_1",
-        "questionType": "definition_in_context",
-        "sentence": "She had [__WORD__] animals; even the most skittish creatures seemed to calm down in her presence.",
-        "prompt": "Which phrase best completes the sentence to describe someone with a natural ability to connect with animals?",
+        "questionId": "a_way_with_fill_in_1",
+        "questionType": "fill_in_the_blank",
+        "sentence": "She has [__WORD__] words; she can always articulate complex ideas with remarkable clarity.",
+        "prompt": "Choose the correct option to complete the sentence:",
         "options": {
-          "a": "a grudge against",
-          "b": "a problem with",
-          "c": "a way with",
+          "a": "a knack for",
+          "b": "a way with",
+          "c": "a penchant for",
           "d": "an aversion to"
         },
-        "correctAnswer": "c"
+        "correctAnswer": "b"
       },
       {
-        "questionId": "a_way_with_synonym_2",
-        "questionType": "synonymous_sentence",
-        "sentence": "He has a way with words, captivating audiences with his eloquent speeches.",
-        "prompt": "Which sentence conveys a similar meaning to the original?",
+        "questionId": "a_way_with_definition_2",
+        "questionType": "definition_in_context",
+        "sentence": "He has a way with animals; they always seem to calm down around him.",
+        "prompt": "In this sentence, 'a way with' means:",
         "options": {
-          "a": "He struggles to express himself clearly and effectively.",
-          "b": "He lacks the skill to communicate effectively with others.",
-          "c": "He possesses a natural talent for using language effectively.",
-          "d": "He is known for his inability to speak in public."
+          "a": "a dislike for",
+          "b": "a special skill or talent for dealing with",
+          "c": "a tendency to avoid",
+          "d": "a physical attraction to"
         },
-        "correctAnswer": "c"
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "a_way_with_synonym_3",
+        "questionType": "synonym",
+        "sentence": "",
+        "prompt": "Which phrase is most similar to 'possessing a talent for'?",
+        "options": {
+          "a": "a way with",
+          "b": "a lack of",
+          "c": "a disregard for",
+          "d": "an indifference to"
+        },
+        "correctAnswer": "a"
       }
     ]
   },
   {
     "word": "a word in edgeways",
-    "meaning": "an opportunity to say something when someone else is talking a lot",
+    "meaning": "an opportunity to say something",
     "questions": [
       {
-        "questionId": "a_word_in_edgeways_definition_1",
-        "questionType": "definition_in_context",
-        "sentence": "The discussion was so heated that I couldn't get [__WORD__], and I just had to listen to everyone argue.",
-        "prompt": "Which phrase best completes the sentence, indicating the speaker's inability to contribute to the conversation?",
+        "questionId": "a_word_in_edgeways_fill_in_1",
+        "questionType": "fill_in_the_blank",
+        "sentence": "The meeting was so dominated by the CEO that no one else could get [__WORD__].",
+        "prompt": "Choose the correct option to complete the sentence:",
         "options": {
-          "a": "a handle on things",
+          "a": "a thought fully",
           "b": "a word in edgeways",
-          "c": "a seat at the table",
-          "d": "a clear understanding"
+          "c": "a lecture completely",
+          "d": "a response immediately"
         },
         "correctAnswer": "b"
       },
       {
-        "questionId": "a_word_in_edgeways_synonym_2",
-        "questionType": "synonymous_sentence",
-        "sentence": "The politician dominated the interview, and the journalist couldn't get a word in edgeways.",
-        "prompt": "Which sentence has a similar meaning to the original?",
+        "questionId": "a_word_in_edgeways_definition_2",
+        "questionType": "definition_in_context",
+        "sentence": "With her constant interruptions, it was impossible to get a word in edgeways.",
+        "prompt": "In this sentence, 'a word in edgeways' means:",
         "options": {
-          "a": "The journalist successfully interrupted the politician multiple times.",
-          "b": "The journalist was unable to interject any questions or comments.",
-          "c": "The journalist and politician engaged in a balanced discussion.",
-          "d": "The journalist controlled the flow of the conversation."
+          "a": "an extremely long speech",
+          "b": "an opportunity to speak briefly",
+          "c": "a comprehensive explanation",
+          "d": "an argument in depth"
+        },
+        "correctAnswer": "b"
+      },
+      {
+        "questionId": "a_word_in_edgeways_synonym_3",
+        "questionType": "synonym",
+        "sentence": "",
+        "prompt": "Which of the following options is closest in meaning to 'a chance to contribute to a conversation'?",
+        "options": {
+          "a": "a silent agreement",
+          "b": "a word in edgeways",
+          "c": "a complete monologue",
+          "d": "an unsolicited lecture"
         },
         "correctAnswer": "b"
       }
@@ -97,63 +136,89 @@
   },
   {
     "word": "and you can see that",
-    "meaning": "used to introduce a point that follows logically from what you have just said",
+    "meaning": "used to emphasize or conclude a point",
     "questions": [
       {
-        "questionId": "and_you_can_see_that_definition_1",
-        "questionType": "definition_in_context",
-        "sentence": "Investment in renewable energy has increased significantly in recent years, [__WORD__] governments are finally taking climate change seriously.",
-        "prompt": "Which phrase best completes the sentence, introducing a logical conclusion based on the preceding statement?",
+        "questionId": "and_you_can_see_that_fill_in_1",
+        "questionType": "fill_in_the_blank",
+        "sentence": "The evidence overwhelmingly points to his guilt, [__WORD__] he is indeed responsible for the crime.",
+        "prompt": "Choose the correct option to complete the sentence:",
         "options": {
-          "a": "and as a result",
+          "a": "however it feels like",
           "b": "and you can see that",
-          "c": "however, this is",
-          "d": "but ultimately, this means"
+          "c": "it is never like that",
+          "d": "or it does not suggest"
         },
         "correctAnswer": "b"
       },
       {
-        "questionId": "and_you_can_see_that_synonym_2",
-        "questionType": "synonymous_sentence",
-        "sentence": "The data clearly shows a correlation between exercise and improved mental health, and you can see that regular physical activity is crucial for well-being.",
-        "prompt": "Which sentence expresses a similar connection between the data and the conclusion?",
+        "questionId": "and_you_can_see_that_definition_2",
+        "questionType": "definition_in_context",
+        "sentence": "Sales have increased dramatically this quarter, and you can see that our marketing strategy is working.",
+        "prompt": "In this sentence, 'and you can see that' means:",
         "options": {
-          "a": "The data suggests, rather vaguely, that exercise might have some impact on mental health.",
-          "b": "The data demonstrates, without a doubt, that exercise contributes significantly to improved mental health.",
-          "c": "The data is inconclusive, leaving the connection between exercise and mental health uncertain.",
-          "d": "The data contradicts the common belief that exercise benefits mental health."
+          "a": "suggesting there is no correlation.",
+          "b": "emphasizing a clear consequence or result",
+          "c": "doubting an underlying cause",
+          "d": "introducing the previous concept"
         },
         "correctAnswer": "b"
+      },
+      {
+        "questionId": "and_you_can_see_that_synonym_3",
+        "questionType": "synonym",
+        "sentence": "",
+        "prompt": "Which phrase could replace 'and you can see that' in terms of emphasizing a resulting conclusion?",
+        "options": {
+          "a": "furthermore",
+          "b": "subsequently",
+          "c": "hence",
+          "d": "conversely"
+        },
+        "correctAnswer": "c"
       }
     ]
   },
   {
     "word": "less likely to",
-    "meaning": "having a smaller chance of happening than something else",
+    "meaning": "having a smaller chance of something happening",
     "questions": [
       {
-        "questionId": "less_likely_to_definition_1",
-        "questionType": "definition_in_context",
-        "sentence": "Students who procrastinate are [__WORD__] succeed academically compared to those who manage their time effectively.",
-        "prompt": "Which phrase best completes the sentence, indicating a reduced probability of academic success?",
+        "questionId": "less_likely_to_fill_in_1",
+        "questionType": "fill_in_the_blank",
+        "sentence": "Those who exercise regularly are [__WORD__] develop heart disease.",
+        "prompt": "Choose the correct option to complete the sentence:",
         "options": {
-          "a": "guaranteed to",
+          "a": "more apt to",
           "b": "less likely to",
-          "c": "destined to",
-          "d": "certain to"
+          "c": "guaranteed to",
+          "d": "certainly for"
         },
         "correctAnswer": "b"
       },
       {
-        "questionId": "less_likely_to_synonym_2",
-        "questionType": "synonymous_sentence",
-        "sentence": "Without adequate safety measures, accidents are less likely to be prevented.",
-        "prompt": "Which sentence expresses a similar idea regarding the probability of preventing accidents?",
+        "questionId": "less_likely_to_definition_2",
+        "questionType": "definition_in_context",
+        "sentence": "Students who skip classes are less likely to succeed academically.",
+        "prompt": "In this sentence, 'less likely to' means:",
         "options": {
-          "a": "Without adequate safety measures, accidents are almost certain to be prevented.",
-          "b": "Without adequate safety measures, accidents are practically unavoidable.",
-          "c": "With adequate safety measures, accidents will definitely be prevented.",
-          "d": "With adequate safety measures, accidents are just as probable."
+          "a": "guaranteed to",
+          "b": "having a higher chance of",
+          "c": "almost certain not to",
+          "d": "equally likely to"
+        },
+        "correctAnswer": "c"
+      },
+      {
+        "questionId": "less_likely_to_synonym_3",
+        "questionType": "synonym",
+        "sentence": "",
+        "prompt": "Which phrase is most similar in meaning to 'having a reduced probability'?",
+        "options": {
+          "a": "more prone to",
+          "b": "less likely to",
+          "c": "assured of",
+          "d": "certain to"
         },
         "correctAnswer": "b"
       }
