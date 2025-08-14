@@ -86,9 +86,6 @@
                     ...card
                 };
 
-                const s = this.p.w;
-                let scheduling_cards = {};
-                
                 if (card.state === State.New) {
                     card.elapsed_days = 0;
                     card.last_review = now;
@@ -96,6 +93,7 @@
                     card.elapsed_days = (now.getTime() - new Date(card.last_review).getTime()) / (1000 * 60 * 60 * 24);
                 }
 
+                let scheduling_cards = {};
                 for (let rating of Object.values(Rating)) {
                     scheduling_cards[rating] = this.schedule(card, rating, now);
                 }
@@ -107,25 +105,24 @@
                 const s = this.p.w;
                 let new_card = { ...card };
                 new_card.reps += 1;
-
                 let interval;
+
                 if (new_card.state === State.New) {
-                    new_card.due = new Date(now);
                     new_card.last_review = new Date(now);
                     
-                    const easy_bonus = rating === Rating.Easy ? s[15] : 1;
-                    const hard_penalty = rating === Rating.Hard ? s[16] : 1;
-                    
-                    new_card.difficulty = Math.min(10, Math.max(1, s[6] + (rating - 3) * s[7] * hard_penalty));
-                    new_card.stability = rating > 1 ? s[0] + (rating - 1) * s[1] * easy_bonus : 1;
-
                     if (rating === Rating.Again) {
-                        interval = 1 / (60 * 24); // 1 minute
-                    } else if (rating === Rating.Good) {
+                        new_card.stability = 0;
                         interval = 10 / (60 * 24); // 10 minutes
-                    } else { // Hard or Easy
-                        interval = 1; // 1 day
+                        new_card.state = State.Learning;
+                    } else {
+                        // This is a simplified stability calculation for the first rating that provides a logical progression.
+                        const easy_bonus = rating === Rating.Easy ? s[15] : 1;
+                        new_card.difficulty = Math.min(10, Math.max(1, s[6] + (rating - 3) * s[7]));
+                        new_card.stability = (s[0] + (rating - 2) * s[1]) * easy_bonus;
+                        interval = new_card.stability;
+                        new_card.state = State.Review; // Graduate the card
                     }
+
                 } else { // Learning, Review, Relearning
                     const scheduled_days = (new Date(new_card.due).getTime() - new Date(new_card.last_review).getTime()) / (1000 * 60 * 60 * 24);
                     const retrievability = Math.pow(1 + scheduled_days / (9 * new_card.stability * s[4]), -1);
@@ -136,16 +133,17 @@
                         new_card.lapses += 1;
                         new_card.stability = s[9] * Math.pow(new_card.difficulty, -s[10]) * Math.pow(new_card.stability, s[11]) * Math.exp((1 - retrievability) * s[12]);
                         interval = 10 / (60 * 24); // 10 minutes
+                        new_card.state = State.Relearning;
                     } else {
                         const easy_bonus = rating === Rating.Easy ? s[15] : 1;
                         const stability_after_review = new_card.stability * (1 + Math.exp(s[8]) * (11 - new_card.difficulty) * Math.pow(new_card.stability, -s[2]) * (Math.exp((1 - retrievability) * s[3]) - 1) * easy_bonus);
                         new_card.stability = stability_after_review;
                         interval = Math.min(this.p.maximum_interval, stability_after_review);
+                        new_card.state = State.Review;
                     }
                 }
 
                 new_card.due = new Date(now.getTime() + interval * 24 * 60 * 60 * 1000);
-                new_card.state = (rating === Rating.Again) ? State.Relearning : State.Review;
                 
                 return { card: new_card, interval: interval };
             }
@@ -178,17 +176,16 @@
 
         async function startQuiz() {
             try {
-                // Load progress from a local progress.json if it exists (for initial setup)
                 try {
                     const progressRes = await fetch('./progress.json');
                     if (progressRes.ok) {
                         const progressData = await progressRes.json();
-                        if (!localStorage.getItem('questionStates')) { // Only load if local storage is empty
+                        if (!localStorage.getItem('questionStates')) {
                            localStorage.setItem('questionStates', JSON.stringify(progressData.questionStates || {}));
                            localStorage.setItem('dailyStats', JSON.stringify(progressData.dailyStats || {}));
                         }
                     }
-                } catch(e) { /* Ignore if file doesn't exist */ }
+                } catch(e) { /* Ignore */ }
 
                 if (allQuestions.length === 0) {
                     const response = await fetch('./soru_bankasi.json');
@@ -291,13 +288,15 @@
         function formatInterval(intervalInDays) {
             if (intervalInDays < 1) {
                 const minutes = Math.round(intervalInDays * 24 * 60);
-                return `${minutes}dk`;
+                if (minutes < 60) return `${minutes}dk`;
+                const hours = (intervalInDays * 24).toFixed(1);
+                return `~${hours}sa`;
             }
             if (intervalInDays < 30) {
                 return `${Math.round(intervalInDays)}g`;
             }
             const months = (intervalInDays / 30).toFixed(1);
-            return `${months}ay`;
+            return `~${months}ay`;
         }
 
         function updateFsrsButtonLabels(isCorrect) {
@@ -377,11 +376,11 @@
             }
             
             const newState = currentSchedules[rating].card;
-            newState.last_review = new Date().toISOString(); // Update last review date
+            newState.last_review = new Date().toISOString(); 
             states[questionId] = newState;
             localStorage.setItem('questionStates', JSON.stringify(states));
             
-            dueQuestionsPool.shift(); // Remove the answered question
+            dueQuestionsPool.shift(); 
 
             if (rating === Rating.Again) {
                  const reInsertIndex = Math.min(10, dueQuestionsPool.length);
@@ -399,7 +398,6 @@
         });
 
         function resetProgress() {
-            // Use a custom modal instead of confirm in a real app
             if (window.confirm("Tüm öğrenme ilerlemeniz ve istatistikleriniz silinecek. Bu işlem geri alınamaz. Emin misiniz?")) {
                 localStorage.removeItem('questionStates');
                 localStorage.removeItem('dailyStats');
@@ -432,7 +430,6 @@
                     if (data.dailyStats) {
                         localStorage.setItem('dailyStats', JSON.stringify(data.dailyStats));
                     }
-                    // Use a custom modal instead of alert
                     alert("İlerleme başarıyla yüklendi!");
                     location.reload();
                 } catch (err) {
