@@ -5,312 +5,496 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WEng</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #2c3e50; color: #ecf0f1; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .quiz-container { background-color: #34495e; border-radius: 10px; padding: 70px 30px 30px 30px; width: 100%; max-width: 800px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); position: relative; }
-        .question-header { border-bottom: 2px solid #7f8c8d; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
+        /* General Body Styles */
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            background-color: #2c3e50; 
+            color: #ecf0f1; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0; 
+            padding: 20px; 
+            box-sizing: border-box; 
+        }
+
+        /* Main container for the quiz */
+        .quiz-container { 
+            background-color: #34495e; 
+            border-radius: 15px; 
+            padding: 70px 30px 30px 30px; 
+            width: 100%; 
+            max-width: 800px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+            position: relative; 
+            border: 1px solid #4a6572;
+        }
+
+        /* Header for the question section */
+        .question-header { 
+            border-bottom: 2px solid #7f8c8d; 
+            padding-bottom: 15px; 
+            margin-bottom: 20px; 
+            display: flex; 
+            align-items: center; 
+            gap: 15px; 
+        }
+
         .sentence { font-size: 1.4em; font-style: italic; margin-bottom: 0; flex-grow: 1; }
-        .prompt { font-size: 1.2em; font-weight: bold; margin-top: 10px; }
-        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .option { background-color: #7f8c8d; border: 2px solid transparent; border-radius: 5px; padding: 15px; cursor: pointer; transition: all 0.2s ease-in-out; display: flex; align-items: center; }
-        .option:hover { background-color: #95a5a6; }
-        .option.correct { background-color: #27ae60; color: white; border-color: #2ecc71; }
-        .option.incorrect { background-color: #c0392b; color: white; border-color: #e74c3c; }
-        .option-letter { font-weight: bold; margin-right: 15px; background-color: rgba(0,0,0,0.2); border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-        .controls { margin-top: 30px; display: flex; justify-content: space-between; align-items: center; }
-        #reset-btn, #final-reset-btn { background: none; border: 1px solid #c0392b; color: #c0392b; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: all 0.2s ease-in-out; }
-        #reset-btn:hover, #final-reset-btn:hover { background: #c0392b; color: white; }
-        .stats { position: absolute; top: 15px; right: 25px; font-size: 0.9em; color: #bdc3c7; text-align: right; }
-        #speak-btn { font-size: 1.5em; cursor: pointer; user-select: none; }
-        .srs-btn { color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1em; cursor: pointer; transition: opacity 0.2s; }
-        .srs-btn:hover { opacity: 0.9; }
-        .status-label { position: absolute; top: 15px; left: 25px; font-size: 1.1em; font-weight: bold; text-transform: uppercase; }
-        .status-new { color: #f1c40f; }
-        .status-review { color: #e67e22; }
+        .prompt { font-size: 1.2em; font-weight: 500; margin-bottom: 20px; color: #bdc3c7; }
+        
+        /* Options grid */
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        /* Individual option button */
+        .option-btn {
+            background-color: #4a6572;
+            color: #ecf0f1;
+            border: none;
+            padding: 15px;
+            font-size: 1em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            text-align: left;
+        }
+        .option-btn:hover { background-color: #5b7c8c; transform: translateY(-2px); }
+        .option-btn:disabled { background-color: #3e5260; color: #7f8c8d; cursor: not-allowed; }
+
+        /* SRS action buttons container */
+        .srs-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        /* Individual SRS button */
+        .srs-btn {
+            flex-grow: 1;
+            border: none;
+            padding: 12px 15px;
+            font-size: 0.9em;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .srs-btn:hover { transform: translateY(-2px); }
+
+        /* SRS button specific colors */
+        #srs-again-btn { background-color: #c0392b; color: white; }
+        #srs-hard-btn { background-color: #e67e22; color: white; }
+        #srs-good-btn { background-color: #2980b9; color: white; }
+        #srs-easy-btn { background-color: #27ae60; color: white; }
+
+        /* Speak button */
+        #speak-btn {
+            background-color: transparent;
+            border: 2px solid #7f8c8d;
+            color: #7f8c8d;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+        #speak-btn:hover { background-color: #7f8c8d; color: #34495e; }
+        
+        /* Stats and Data Management Area */
+        .top-bar {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            left: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stats-container { font-size: 0.9em; color: #bdc3c7; }
+        .data-management { display: flex; gap: 10px; }
+        
+        /* Custom Modal Styles */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); display: flex; justify-content: center; align-items: center; z-index: 1000; transition: opacity 0.3s; }
+        .modal-content { background-color: #34495e; padding: 30px; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); transform: scale(0.95); transition: transform 0.3s; }
+        .modal-overlay.show .modal-content { transform: scale(1); }
+        .modal-content p { font-size: 1.1em; margin-top: 0; margin-bottom: 20px; }
+        .modal-buttons { display: flex; gap: 15px; justify-content: center; }
+        #modal-confirm-btn { background-color: #c0392b; color: white; }
+
+        /* Toast Notification Styles */
+        .toast {
+            position: fixed;
+            bottom: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #27ae60;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            z-index: 1001;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            transition: bottom 0.5s ease-in-out;
+        }
+        .toast.show { bottom: 40px; }
+        .toast.error { background-color: #c0392b; }
     </style>
 </head>
 <body>
     <div class="quiz-container">
-        <div id="question-status" class="status-label"></div>
-        <div id="stats" class="stats"></div>
+        <!-- Top bar for stats and data management -->
+        <div class="top-bar">
+            <div id="stats" class="stats-container">Günlük İstatistik: 0 | Gözden Geçirilecek: 0</div>
+            <div class="data-management">
+                <button id="save-btn" class="srs-btn" style="background-color: #16a085;">İlerlemeyi İndir</button>
+                <label for="load-input" class="srs-btn" style="background-color: #3498db; cursor: pointer;">İlerleme Yükle</label>
+                <input type="file" id="load-input" accept=".json" style="display: none;">
+                <button id="reset-btn" class="srs-btn" style="background-color: #e74c3c;">Sıfırla</button>
+            </div>
+        </div>
+
+        <!-- Question Area -->
         <div id="question-area">
             <div class="question-header">
                 <p id="sentence" class="sentence"></p>
-                <span id="speak-btn" title="Tekrar Dinle">🔊</span>
+                <button id="speak-btn" title="Telaffuzu Dinle">🔊</button>
             </div>
             <p id="prompt" class="prompt"></p>
-            <div id="options-container" class="options-container"></div>
+            <div id="options" class="options-grid"></div>
         </div>
-        <div class="controls">
-            <button id="reset-btn">İlerlemeyi Sıfırla</button>
-            <div id="srs-controls" style="display: none; gap: 10px;">
-                <button class="srs-btn" id="srs-again" style="background-color: #c0392b;">Tekrar</button>
-                <button class="srs-btn" id="srs-hard" style="background-color: #e67e22;">Zor</button>
-                <button class="srs-btn" id="srs-good" style="background-color: #3498db;">İyi</button>
-                <button class="srs-btn" id="srs-easy" style="background-color: #27ae60;">Kolay</button>
+
+        <!-- SRS Buttons -->
+        <div id="srs-controls" class="srs-actions" style="display: none;">
+            <button id="srs-again-btn" class="srs-btn">Tekrar (10d)</button>
+            <button id="srs-hard-btn" class="srs-btn">Zor</button>
+            <button id="srs-good-btn" class="srs-btn">İyi</button>
+            <button id="srs-easy-btn" class="srs-btn">Kolay</button>
+        </div>
+        
+        <audio id="audio-player" style="display: none;"></audio>
+    </div>
+
+    <!-- Custom Modal for confirmations -->
+    <div id="custom-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <p id="modal-text"></p>
+            <div class="modal-buttons">
+                <button id="modal-confirm-btn" class="srs-btn"></button>
+                <button id="modal-cancel-btn" class="srs-btn" style="background-color: #7f8c8d;">İptal</button>
             </div>
         </div>
     </div>
-    <audio id="audio-player"></audio>
+
+    <!-- Toast Notification for feedback -->
+    <div id="toast-notification" class="toast"></div>
+
     <script>
+        // DOM Element References
         const sentenceEl = document.getElementById('sentence');
         const promptEl = document.getElementById('prompt');
-        const optionsContainerEl = document.getElementById('options-container');
+        const optionsEl = document.getElementById('options');
+        const srsControlsEl = document.getElementById('srs-controls');
         const statsEl = document.getElementById('stats');
         const speakBtn = document.getElementById('speak-btn');
         const audioPlayer = document.getElementById('audio-player');
         const resetBtn = document.getElementById('reset-btn');
-        const srsControlsEl = document.getElementById('srs-controls');
-        const srsAgainBtn = document.getElementById('srs-again');
-        const srsHardBtn = document.getElementById('srs-hard');
-        const srsGoodBtn = document.getElementById('srs-good');
-        const srsEasyBtn = document.getElementById('srs-easy');
-        const quizContainer = document.querySelector('.quiz-container');
-        const statusLabel = document.getElementById('question-status');
-
-        const DAILY_NEW_QUESTION_LIMIT = 200;
+        const saveBtn = document.getElementById('save-btn');
+        const loadInput = document.getElementById('load-input');
         
-        let dueQuestionsPool = [];
+        // SRS Buttons
+        const srsAgainBtn = document.getElementById('srs-again-btn');
+        const srsHardBtn = document.getElementById('srs-hard-btn');
+        const srsGoodBtn = document.getElementById('srs-good-btn');
+        const srsEasyBtn = document.getElementById('srs-easy-btn');
+
+        // Modal and Toast Elements
+        const customModal = document.getElementById('custom-modal');
+        const modalText = document.getElementById('modal-text');
+        const modalConfirmBtn = document.getElementById('modal-confirm-btn');
+        const modalCancelBtn = document.getElementById('modal-cancel-btn');
+        const toast = document.getElementById('toast-notification');
+        let toastTimeout;
+
+        // Application State
         let allQuestions = [];
-        let answered = false;
+        let dueQuestionsPool = [];
         let currentQuestion = null;
-        const srsIntervals = [1, 3, 7, 15, 30, 60, 120, 240, 360];
+        
+        // SRS Intervals (in days)
+        const srsIntervals = {
+            hard: [1, 2, 4, 8, 15, 30, 60],
+            good: [1, 3, 7, 15, 30, 60, 120],
+            easy: [4, 10, 30, 90, 180, 360]
+        };
+
+        // --- Core Functions ---
 
         async function startQuiz() {
             try {
-                if (allQuestions.length === 0) {
-                    const response = await fetch('./soru_bankasi.json');
-                    if (!response.ok) throw new Error('Hata: soru_bankasi.json dosyası yüklenemedi.');
-                    const loadedData = await response.json();
-                    allQuestions = loadedData.flatMap(wordData =>
-                        wordData.questions.map(q => ({ ...q, word: wordData.word }))
-                    );
-                }
-
-                const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-                const todayStr = new Date().toISOString().split('T')[0];
-                let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || '{}');
-                if (dailyStats.date !== todayStr) {
-                    dailyStats = { date: todayStr, newQuestionsSeen: 0 };
-                    localStorage.setItem('dailyStats', JSON.stringify(dailyStats));
-                }
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                const reviewQuestions = [];
-                const newQuestions = [];
-                for (const q of allQuestions) {
-                    const state = states[q.questionId];
-                    if (state && state.dueDate) {
-                        const dueDate = new Date(state.dueDate);
-                        if (dueDate <= today) reviewQuestions.push(q);
-                    } else if (!state) {
-                        newQuestions.push(q);
-                    }
-                }
+                const response = await fetch('soru_bankasi.json');
+                if (!response.ok) throw new Error('Soru bankası yüklenemedi.');
+                const data = await response.json();
+                allQuestions = data.flatMap(word => word.questions.map(q => ({...q, word: word.word, meaning: word.meaning})));
                 
-                const newQuestionsAllowedToday = DAILY_NEW_QUESTION_LIMIT - dailyStats.newQuestionsSeen;
-                const newQuestionsForSession = newQuestions.slice(0, Math.max(0, newQuestionsAllowedToday));
-                
-                dueQuestionsPool = [...reviewQuestions, ...newQuestionsForSession];
-
-                if (dueQuestionsPool.length === 0 && allQuestions.length > 0) {
-                    displayNoMoreQuestionsMessage(states);
-                    return;
-                }
-
-                dueQuestionsPool.sort(() => Math.random() - 0.5);
+                prepareDueQuestions();
                 displayQuestion();
-
+                updateStats();
             } catch (error) {
-                quizContainer.innerHTML = `<h1>Hata</h1><p>${error.message}</p>`;
+                console.error("Başlatma hatası:", error);
+                promptEl.textContent = 'Sorular yüklenirken bir hata oluştu. Lütfen sayfayı yenileyin.';
             }
         }
-        
-        function displayQuestion() {
-            if (dueQuestionsPool.length === 0) { startQuiz(); return; }
-            answered = false;
-            srsControlsEl.style.display = 'none';
-            updateStats();
-            currentQuestion = dueQuestionsPool[0];
 
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const isNew = !states[currentQuestion.questionId];
-            if(isNew) {
-                statusLabel.textContent = 'YENİ';
-                statusLabel.className = 'status-label status-new';
-            } else {
-                statusLabel.textContent = 'ESKİ';
-                statusLabel.className = 'status-label status-review';
-            }
+        function prepareDueQuestions() {
+            const states = JSON.parse(localStorage.getItem('questionStates')) || {};
+            const today = new Date().toISOString().split('T')[0];
             
-            audioPlayer.src = `./audio/${currentQuestion.questionId}.mp3`;
-            sentenceEl.innerHTML = currentQuestion.sentence.replace(/\[__.*?__\]/g, `<b>[_______]</b>`);
-            promptEl.textContent = currentQuestion.prompt;
-            optionsContainerEl.innerHTML = '';
-            const options = currentQuestion.options;
-            let optionKeys = Object.keys(options).sort(() => Math.random() - 0.5);
-            for (const key of optionKeys) {
-                const optionEl = document.createElement('div');
-                optionEl.classList.add('option');
-                optionEl.dataset.key = key;
-                optionEl.innerHTML = `<span class="option-letter">${key.toUpperCase()}</span><span>${options[key]}</span>`;
-                optionEl.addEventListener('click', () => selectAnswer(optionEl, key));
-                optionsContainerEl.appendChild(optionEl);
-            }
-        }
-
-        function selectAnswer(selectedOptionEl, selectedKey) {
-            if (answered) return;
-            answered = true;
-            const correctKey = currentQuestion.correctAnswer;
-            Array.from(optionsContainerEl.children).forEach(option => {
-                option.style.cursor = 'default';
-                if (option.dataset.key === correctKey) option.classList.add('correct');
-                else if (option.dataset.key === selectedKey) option.classList.add('incorrect');
+            const dueQuestions = allQuestions.filter(q => {
+                const state = states[q.questionId];
+                // If never seen, or due date is today or in the past, it's due.
+                return !state || !state.dueDate || state.dueDate <= today;
             });
-            updateSrsButtonLabels(selectedKey === correctKey);
-            srsControlsEl.style.display = 'flex';
-        }
-        
-        // --- BU FONKSİYON GÜNCELLENDİ VE YENİ BİR FONKSİYON EKLENDİ ---
-
-        /**
-         * Günleri veya ayları daha okunaklı bir formata çevirir. Örn: 3g, ~2ay
-         */
-        function formatInterval(days) {
-            if (!days || days < 1) return `~10dk`; // 'Tekrar' butonu için özel durum
-            if (days < 30) return `${days}g`; // 'g' gün demek
-            const months = Math.round(days / 30);
-            return `~${months}ay`; // 'ay' ay demek
+            
+            // Shuffle the due questions to vary the order
+            dueQuestionsPool = dueQuestions.sort(() => Math.random() - 0.5);
         }
 
-        /**
-         * Cevap verildikten sonra SRS butonlarının etiketlerini günceller.
-         * Artık her butonun yanında bir sonraki tekrarın ne zaman olacağını gösterir.
-         */
-        function updateSrsButtonLabels(isCorrect) {
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const state = states[currentQuestion.questionId] || { level: 0 };
-            const currentLevel = state.level;
-
-            // 'Tekrar' butonu her zaman görünür ve süresini gösterir.
-            srsAgainBtn.style.display = 'block';
-            srsAgainBtn.textContent = `Tekrar (${formatInterval(0)})`;
-
-            if (!isCorrect) {
-                // Cevap yanlışsa sadece 'Tekrar' butonu görünür.
-                srsHardBtn.style.display = 'none';
-                srsGoodBtn.style.display = 'none';
-                srsEasyBtn.style.display = 'none';
-            } else {
-                // Cevap doğruysa tüm butonlar görünür ve süreleri hesaplanır.
-                srsHardBtn.style.display = 'block';
-                srsGoodBtn.style.display = 'block';
-                srsEasyBtn.style.display = 'block';
-                
-                // Zor: Seviye aynı kalır.
-                const hardInterval = srsIntervals[Math.min(currentLevel, srsIntervals.length - 1)];
-                srsHardBtn.textContent = `Zor (${formatInterval(hardInterval)})`;
-
-                // İyi: Seviye 1 artar.
-                const goodLevel = currentLevel + 1;
-                const goodInterval = srsIntervals[Math.min(goodLevel, srsIntervals.length - 1)];
-                srsGoodBtn.textContent = `İyi (${formatInterval(goodInterval)})`;
-
-                // Kolay: Seviye 2 artar.
-                const easyLevel = currentLevel + 2;
-                const easyInterval = srsIntervals[Math.min(easyLevel, srsIntervals.length - 1)];
-                srsEasyBtn.textContent = `Kolay (${formatInterval(easyInterval)})`;
+        function displayQuestion() {
+            if (dueQuestionsPool.length === 0) {
+                promptEl.textContent = "Bugünlük tüm soruları tamamladınız! Harika iş çıkardınız. Yarın tekrar gelin.";
+                sentenceEl.textContent = "🎉";
+                optionsEl.innerHTML = '';
+                srsControlsEl.style.display = 'none';
+                updateStats();
+                return;
             }
-        }
-        
-        function updateStats() {
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const todayStr = new Date().toISOString().split('T')[0];
-            let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || `{ "date": "${todayStr}", "newQuestionsSeen": 0 }`);
-            if (dailyStats.date !== todayStr) dailyStats.newQuestionsSeen = 0;
-            const knownCount = Object.keys(states).filter(id => states[id] && states[id].level > 0).length;
-            statsEl.innerHTML = `Bugün Kalan: ${dueQuestionsPool.length}<br>Yeni: ${dailyStats.newQuestionsSeen}/${DAILY_NEW_QUESTION_LIMIT}<br>Öğrenilen: ${knownCount}/${allQuestions.length || '...'}`;
-        }
 
-        function displayNoMoreQuestionsMessage(questionStates) {
-            let nextQuestionDate = null;
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            for (const qId in questionStates) {
-                if (questionStates[qId].dueDate) {
-                    const dueDate = new Date(questionStates[qId].dueDate);
-                    if (dueDate > today && (!nextQuestionDate || dueDate < nextQuestionDate)) {
-                        nextQuestionDate = dueDate;
-                    }
-                }
-            }
-            let message = `<h1>Harika!</h1><p>Bugünlük tüm soruları tamamladınız.</p>`;
-            if (nextQuestionDate) {
-                const formattedDate = nextQuestionDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-                message += `<p style='font-size:0.9em'>Bir sonraki tekrar oturumunuz <b>${formattedDate}</b> tarihinde.</p>`;
-            }
-            message += `<button id="final-reset-btn" style="margin-top: 15px;">Tüm İlerlemeyi Sıfırla</button>`;
-            quizContainer.innerHTML = message;
-            document.getElementById('final-reset-btn').addEventListener('click', resetProgress);
-        }
+            currentQuestion = dueQuestionsPool[0];
+            srsControlsEl.style.display = 'none';
+            optionsEl.style.display = 'grid';
 
-        function updateQuestionState(rating) {
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const questionId = currentQuestion.questionId;
-            const isNewQuestion = !states[questionId];
-            let currentState = states[questionId] || { level: 0 };
-
-            if (isNewQuestion && rating !== 'again') {
-                const todayStr = new Date().toISOString().split('T')[0];
-                let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || `{ "date": "${todayStr}", "newQuestionsSeen": 0 }`);
-                if (dailyStats.date !== todayStr) {
-                    dailyStats = { date: todayStr, newQuestionsSeen: 1 };
-                } else {
-                    dailyStats.newQuestionsSeen++;
-                }
-                localStorage.setItem('dailyStats', JSON.stringify(dailyStats));
+            const sentenceText = currentQuestion.sentence.replace('[__WORD__]', `<strong>${currentQuestion.word}</strong>`);
+            sentenceEl.innerHTML = sentenceText || `Kelime: <strong>${currentQuestion.word}</strong>`;
+            promptEl.textContent = currentQuestion.prompt;
+            
+            optionsEl.innerHTML = '';
+            for (const [key, value] of Object.entries(currentQuestion.options)) {
+                const button = document.createElement('button');
+                button.classList.add('option-btn');
+                button.dataset.key = key;
+                button.textContent = `${key.toUpperCase()}. ${value}`;
+                button.onclick = () => checkAnswer(key);
+                optionsEl.appendChild(button);
             }
             
-            let nextDueDate = new Date();
-            nextDueDate.setHours(0,0,0,0);
+            // Set up audio
+            const audioUrl = `https://api.voicerss.org/?key=YOUR_API_KEY&hl=en-us&src=${encodeURIComponent(currentQuestion.word)}`;
+            // IMPORTANT: Replace YOUR_API_KEY with a real key from http://www.voicerss.org/
+            // For now, this will not work without a key.
+            // audioPlayer.src = audioUrl;
+        }
+
+        function checkAnswer(selectedKey) {
+            const isCorrect = selectedKey === currentQuestion.correctAnswer;
+            
+            Array.from(optionsEl.children).forEach(btn => {
+                btn.disabled = true;
+                if (btn.dataset.key === currentQuestion.correctAnswer) {
+                    btn.style.backgroundColor = '#2ecc71'; // Correct answer
+                } else if (btn.dataset.key === selectedKey) {
+                    btn.style.backgroundColor = '#e74c3c'; // Incorrect answer
+                }
+            });
+
+            if (isCorrect) {
+                optionsEl.style.display = 'none';
+                srsControlsEl.style.display = 'flex';
+                updateDailyStats();
+            } else {
+                // If wrong, move the question to the end of the pool to be re-asked
+                const failedQuestion = dueQuestionsPool.shift();
+                dueQuestionsPool.push(failedQuestion);
+                setTimeout(displayQuestion, 2000); // Show next question after a delay
+            }
+        }
+        
+        function updateQuestionState(rating) {
+            const states = JSON.parse(localStorage.getItem('questionStates')) || {};
+            const questionId = currentQuestion.questionId;
+            const currentState = states[questionId] || { level: 0, rating: 'new' };
+            
+            const nextDueDate = new Date();
+            nextDueDate.setHours(5, 0, 0, 0); // Set due time to 5 AM
 
             if (rating === 'again') {
-                currentState.level = 0;
-                const reInsertIndex = Math.min(10, dueQuestionsPool.length);
-                dueQuestionsPool.splice(reInsertIndex, 0, currentQuestion);
+                currentState.level = 0; // Reset progress
+                nextDueDate.setMinutes(nextDueDate.getMinutes() + 10); // Re-ask in 10 minutes (for simplicity, we'll just check tomorrow)
             } else {
-                if (rating === 'hard') currentState.level = Math.max(0, currentState.level);
-                else if (rating === 'good') currentState.level++;
-                else if (rating === 'easy') currentState.level += 2;
+                const intervals = srsIntervals[rating];
+                let level = currentState.level || 0;
+                if (rating === 'hard' && level > 0) level--;
+                if (rating === 'good') level++;
+                if (rating === 'easy') level += 2;
                 
-                const intervalIndex = Math.min(currentState.level, srsIntervals.length - 1);
-                const intervalDays = srsIntervals[intervalIndex] || 1;
+                currentState.level = Math.min(level, intervals.length - 1);
+                const intervalDays = intervals[currentState.level];
                 nextDueDate.setDate(nextDueDate.getDate() + intervalDays);
-                currentState.dueDate = nextDueDate.toISOString().split('T')[0];
             }
            
+            currentState.dueDate = nextDueDate.toISOString().split('T')[0];
+            currentState.rating = rating;
             states[questionId] = currentState;
             localStorage.setItem('questionStates', JSON.stringify(states));
             
-            dueQuestionsPool.shift();
+            dueQuestionsPool.shift(); // Remove the answered question from the pool
             displayQuestion();
+            updateStats();
+        }
+
+        // --- Utility and UI Functions ---
+
+        function updateStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const stats = JSON.parse(localStorage.getItem('dailyStats')) || {};
+            const dailyCount = stats[today] || 0;
+            statsEl.textContent = `Günlük İstatistik: ${dailyCount} | Gözden Geçirilecek: ${dueQuestionsPool.length}`;
+        }
+
+        function updateDailyStats() {
+            const today = new Date().toISOString().split('T')[0];
+            const stats = JSON.parse(localStorage.getItem('dailyStats')) || {};
+            stats[today] = (stats[today] || 0) + 1;
+            localStorage.setItem('dailyStats', JSON.stringify(stats));
         }
 
         function resetProgress() {
-            if (confirm("Tüm öğrenme ilerlemeniz ve istatistikleriniz silinecek. Bu işlem geri alınamaz. Emin misiniz?")) {
-                localStorage.removeItem('questionStates');
-                localStorage.removeItem('dailyStats');
-                location.reload();
-            }
+            showModal(
+                "Tüm öğrenme ilerlemeniz ve istatistikleriniz silinecek. Bu işlem geri alınamaz. Emin misiniz?",
+                "Evet, Hepsini Sil",
+                () => {
+                    localStorage.removeItem('questionStates');
+                    localStorage.removeItem('dailyStats');
+                    showToast("İlerleme sıfırlandı. Sayfa yeniden başlatılıyor.");
+                    setTimeout(() => location.reload(), 1500);
+                }
+            );
         }
+
+        function showModal(text, confirmText, onConfirm) {
+            modalText.textContent = text;
+            modalConfirmBtn.textContent = confirmText;
+            customModal.style.display = 'flex';
+            
+            // Use a timeout to allow the display property to apply before adding the class for transition
+            setTimeout(() => customModal.classList.add('show'), 10);
+
+            // Clone and replace the button to ensure only one event listener is active
+            const newConfirmBtn = modalConfirmBtn.cloneNode(true);
+            modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
+            
+            newConfirmBtn.onclick = () => {
+                onConfirm();
+                customModal.classList.remove('show');
+                setTimeout(() => customModal.style.display = 'none', 300);
+            };
+
+            modalCancelBtn.onclick = () => {
+                customModal.classList.remove('show');
+                setTimeout(() => customModal.style.display = 'none', 300);
+            };
+        }
+        
+        function showToast(message, isError = false) {
+            clearTimeout(toastTimeout);
+            toast.textContent = message;
+            toast.className = 'toast'; // Reset classes
+            if (isError) {
+                toast.classList.add('error');
+            }
+            toast.classList.add('show');
+            
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // --- Data Management Event Listeners ---
+
+        saveBtn.addEventListener('click', () => {
+            const questionStates = localStorage.getItem('questionStates');
+            const dailyStats = localStorage.getItem('dailyStats');
+
+            if (!questionStates) {
+                showToast('Kaydedilecek bir ilerleme bulunamadı.', true);
+                return;
+            }
+
+            const progressData = {
+                questionStates: JSON.parse(questionStates),
+                dailyStats: JSON.parse(dailyStats || '{}')
+            };
+
+            const dataStr = JSON.stringify(progressData, null, 2);
+            const dataBlob = new Blob([dataStr], {type: "application/json"});
+            const url = URL.createObjectURL(dataBlob);
+
+            const link = document.createElement('a');
+            link.download = 'WEng_ilerleme.json';
+            link.href = url;
+            document.body.appendChild(link); // Required for Firefox
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+            showToast('İlerleme dosyası indirildi!');
+        });
+
+        loadInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const progressData = JSON.parse(e.target.result);
+                    if (progressData.questionStates) {
+                        localStorage.setItem('questionStates', JSON.stringify(progressData.questionStates));
+                    }
+                    if (progressData.dailyStats) {
+                        localStorage.setItem('dailyStats', JSON.stringify(progressData.dailyStats));
+                    }
+                    showToast('İlerleme başarıyla yüklendi! Sayfa yeniden başlatılıyor.');
+                    setTimeout(() => location.reload(), 1500);
+                } catch (error) {
+                    showToast('Geçersiz dosya formatı veya dosya bozuk.', true);
+                    console.error("Dosya yükleme hatası:", error);
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = ''; // Allow loading the same file again
+        });
+        
+        // --- Initial Event Listeners ---
         
         speakBtn.addEventListener('click', () => {
             if (currentQuestion && audioPlayer.src) {
                 audioPlayer.play().catch(error => {
                     console.error("Ses çalma hatası:", error);
+                    showToast('Ses dosyası çalınamadı.', true);
                 });
+            } else if (!audioPlayer.src) {
+                showToast('Ses hizmeti için API anahtarı gerekli.', true);
             }
         });
 
@@ -320,6 +504,7 @@
         srsGoodBtn.addEventListener('click', () => updateQuestionState('good'));
         srsEasyBtn.addEventListener('click', () => updateQuestionState('easy'));
         
+        // Start the application
         startQuiz();
     </script>
 </body>
