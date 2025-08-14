@@ -65,7 +65,7 @@
             text-align: left;
         }
         .option-btn:hover { background-color: #5b7c8c; transform: translateY(-2px); }
-        .option-btn:disabled { background-color: #3e5260; color: #7f8c8d; cursor: not-allowed; }
+        .option-btn:disabled { background-color: #3e5260; color: #7f8c8d; cursor: not-allowed; transform: none; }
 
         /* SRS action buttons container */
         .srs-actions {
@@ -121,6 +121,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 10px;
+            flex-wrap: wrap;
         }
 
         .stats-container { font-size: 0.9em; color: #bdc3c7; }
@@ -156,7 +157,7 @@
     <div class="quiz-container">
         <!-- Top bar for stats and data management -->
         <div class="top-bar">
-            <div id="stats" class="stats-container">Günlük İstatistik: 0 | Gözden Geçirilecek: 0</div>
+            <div id="stats" class="stats-container">Yükleniyor...</div>
             <div class="data-management">
                 <button id="save-btn" class="srs-btn" style="background-color: #16a085;">İlerlemeyi İndir</button>
                 <label for="load-input" class="srs-btn" style="background-color: #3498db; cursor: pointer;">İlerleme Yükle</label>
@@ -175,15 +176,16 @@
             <div id="options" class="options-grid"></div>
         </div>
 
-        <!-- SRS Buttons -->
+        <!-- Action Buttons -->
         <div id="srs-controls" class="srs-actions" style="display: none;">
             <button id="srs-again-btn" class="srs-btn">Tekrar (10d)</button>
             <button id="srs-hard-btn" class="srs-btn">Zor</button>
             <button id="srs-good-btn" class="srs-btn">İyi</button>
             <button id="srs-easy-btn" class="srs-btn">Kolay</button>
         </div>
-        
-        <audio id="audio-player" style="display: none;"></audio>
+        <div class="srs-actions">
+             <button id="next-question-btn" class="srs-btn" style="display: none; background-color: #3498db; width: 100%;">Sonraki Soru →</button>
+        </div>
     </div>
 
     <!-- Custom Modal for confirmations -->
@@ -208,10 +210,10 @@
         const srsControlsEl = document.getElementById('srs-controls');
         const statsEl = document.getElementById('stats');
         const speakBtn = document.getElementById('speak-btn');
-        const audioPlayer = document.getElementById('audio-player');
         const resetBtn = document.getElementById('reset-btn');
         const saveBtn = document.getElementById('save-btn');
         const loadInput = document.getElementById('load-input');
+        const nextQuestionBtn = document.getElementById('next-question-btn');
         
         // SRS Buttons
         const srsAgainBtn = document.getElementById('srs-again-btn');
@@ -230,6 +232,7 @@
         // Application State
         let allQuestions = [];
         let dueQuestionsPool = [];
+        let totalDueToday = 0;
         let currentQuestion = null;
         
         // SRS Intervals (in days)
@@ -263,18 +266,19 @@
             
             const dueQuestions = allQuestions.filter(q => {
                 const state = states[q.questionId];
-                // If never seen, or due date is today or in the past, it's due.
                 return !state || !state.dueDate || state.dueDate <= today;
             });
             
-            // Shuffle the due questions to vary the order
             dueQuestionsPool = dueQuestions.sort(() => Math.random() - 0.5);
+            totalDueToday = dueQuestionsPool.length;
         }
 
         function displayQuestion() {
+            nextQuestionBtn.style.display = 'none'; // Hide next button on new question
+
             if (dueQuestionsPool.length === 0) {
                 promptEl.textContent = "Bugünlük tüm soruları tamamladınız! Harika iş çıkardınız. Yarın tekrar gelin.";
-                sentenceEl.textContent = "🎉";
+                sentenceEl.textContent = "�";
                 optionsEl.innerHTML = '';
                 srsControlsEl.style.display = 'none';
                 updateStats();
@@ -298,12 +302,7 @@
                 button.onclick = () => checkAnswer(key);
                 optionsEl.appendChild(button);
             }
-            
-            // Set up audio
-            const audioUrl = `https://api.voicerss.org/?key=YOUR_API_KEY&hl=en-us&src=${encodeURIComponent(currentQuestion.word)}`;
-            // IMPORTANT: Replace YOUR_API_KEY with a real key from http://www.voicerss.org/
-            // For now, this will not work without a key.
-            // audioPlayer.src = audioUrl;
+            updateStats();
         }
 
         function checkAnswer(selectedKey) {
@@ -318,15 +317,15 @@
                 }
             });
 
+            optionsEl.style.display = 'none';
+
             if (isCorrect) {
-                optionsEl.style.display = 'none';
                 srsControlsEl.style.display = 'flex';
                 updateDailyStats();
             } else {
-                // If wrong, move the question to the end of the pool to be re-asked
                 const failedQuestion = dueQuestionsPool.shift();
                 dueQuestionsPool.push(failedQuestion);
-                setTimeout(displayQuestion, 2000); // Show next question after a delay
+                nextQuestionBtn.style.display = 'block';
             }
         }
         
@@ -339,8 +338,8 @@
             nextDueDate.setHours(5, 0, 0, 0); // Set due time to 5 AM
 
             if (rating === 'again') {
-                currentState.level = 0; // Reset progress
-                nextDueDate.setMinutes(nextDueDate.getMinutes() + 10); // Re-ask in 10 minutes (for simplicity, we'll just check tomorrow)
+                currentState.level = 0;
+                nextDueDate.setMinutes(nextDueDate.getMinutes() + 10);
             } else {
                 const intervals = srsIntervals[rating];
                 let level = currentState.level || 0;
@@ -358,9 +357,8 @@
             states[questionId] = currentState;
             localStorage.setItem('questionStates', JSON.stringify(states));
             
-            dueQuestionsPool.shift(); // Remove the answered question from the pool
+            dueQuestionsPool.shift();
             displayQuestion();
-            updateStats();
         }
 
         // --- Utility and UI Functions ---
@@ -369,7 +367,7 @@
             const today = new Date().toISOString().split('T')[0];
             const stats = JSON.parse(localStorage.getItem('dailyStats')) || {};
             const dailyCount = stats[today] || 0;
-            statsEl.textContent = `Günlük İstatistik: ${dailyCount} | Gözden Geçirilecek: ${dueQuestionsPool.length}`;
+            statsEl.textContent = `Bugün: ${dueQuestionsPool.length}/${totalDueToday} | Öğrenilen: ${dailyCount}`;
         }
 
         function updateDailyStats() {
@@ -377,6 +375,7 @@
             const stats = JSON.parse(localStorage.getItem('dailyStats')) || {};
             stats[today] = (stats[today] || 0) + 1;
             localStorage.setItem('dailyStats', JSON.stringify(stats));
+            updateStats();
         }
 
         function resetProgress() {
@@ -392,15 +391,25 @@
             );
         }
 
+        function speakWord(word) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                utterance.rate = 0.9;
+                window.speechSynthesis.cancel(); // Cancel any previous speech
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast('Tarayıcınız seslendirmeyi desteklemiyor.', true);
+            }
+        }
+
         function showModal(text, confirmText, onConfirm) {
             modalText.textContent = text;
             modalConfirmBtn.textContent = confirmText;
             customModal.style.display = 'flex';
             
-            // Use a timeout to allow the display property to apply before adding the class for transition
             setTimeout(() => customModal.classList.add('show'), 10);
 
-            // Clone and replace the button to ensure only one event listener is active
             const newConfirmBtn = modalConfirmBtn.cloneNode(true);
             modalConfirmBtn.parentNode.replaceChild(newConfirmBtn, modalConfirmBtn);
             
@@ -419,7 +428,7 @@
         function showToast(message, isError = false) {
             clearTimeout(toastTimeout);
             toast.textContent = message;
-            toast.className = 'toast'; // Reset classes
+            toast.className = 'toast';
             if (isError) {
                 toast.classList.add('error');
             }
@@ -453,7 +462,7 @@
             const link = document.createElement('a');
             link.download = 'WEng_ilerleme.json';
             link.href = url;
-            document.body.appendChild(link); // Required for Firefox
+            document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
             URL.revokeObjectURL(url);
@@ -482,22 +491,18 @@
                 }
             };
             reader.readAsText(file);
-            event.target.value = ''; // Allow loading the same file again
+            event.target.value = '';
         });
         
         // --- Initial Event Listeners ---
         
         speakBtn.addEventListener('click', () => {
-            if (currentQuestion && audioPlayer.src) {
-                audioPlayer.play().catch(error => {
-                    console.error("Ses çalma hatası:", error);
-                    showToast('Ses dosyası çalınamadı.', true);
-                });
-            } else if (!audioPlayer.src) {
-                showToast('Ses hizmeti için API anahtarı gerekli.', true);
+            if (currentQuestion) {
+                speakWord(currentQuestion.word);
             }
         });
 
+        nextQuestionBtn.addEventListener('click', displayQuestion);
         resetBtn.addEventListener('click', resetProgress);
         srsAgainBtn.addEventListener('click', () => updateQuestionState('again'));
         srsHardBtn.addEventListener('click', () => updateQuestionState('hard'));
@@ -509,3 +514,4 @@
     </script>
 </body>
 </html>
+�
