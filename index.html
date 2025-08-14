@@ -109,18 +109,29 @@
 
                 if (new_card.state === State.New) {
                     new_card.last_review = new Date(now);
-                    
-                    if (rating === Rating.Again) {
-                        new_card.stability = 0;
-                        interval = 10 / (60 * 24); // 10 minutes
-                        new_card.state = State.Learning;
-                    } else {
-                        // This is a simplified stability calculation for the first rating that provides a logical progression.
-                        const easy_bonus = rating === Rating.Easy ? s[15] : 1;
-                        new_card.difficulty = Math.min(10, Math.max(1, s[6] + (rating - 3) * s[7]));
-                        new_card.stability = (s[0] + (rating - 2) * s[1]) * easy_bonus;
-                        interval = new_card.stability;
-                        new_card.state = State.Review; // Graduate the card
+                    new_card.difficulty = Math.min(10, Math.max(1, s[6] + (rating - 3) * s[7]));
+
+                    switch (rating) {
+                        case Rating.Again:
+                            new_card.stability = 0;
+                            interval = 10 / (60 * 24); // 10 minutes
+                            new_card.state = State.Learning;
+                            break;
+                        case Rating.Hard:
+                            new_card.stability = s[0] + s[1]; // ~1 day
+                            interval = new_card.stability;
+                            new_card.state = State.Review;
+                            break;
+                        case Rating.Good:
+                            new_card.stability = s[2]; // ~2.4 days
+                            interval = new_card.stability;
+                            new_card.state = State.Review;
+                            break;
+                        case Rating.Easy:
+                            new_card.stability = s[3]; // ~5.8 days
+                            interval = new_card.stability;
+                            new_card.state = State.Review;
+                            break;
                     }
 
                 } else { // Learning, Review, Relearning
