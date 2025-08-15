@@ -26,6 +26,7 @@
         .status-label { position: absolute; top: 15px; left: 25px; font-size: 1.1em; font-weight: bold; text-transform: uppercase; }
         .status-new { color: #f1c40f; }
         .status-review { color: #e67e22; }
+        .audio-control { font-size: 0.9em; color: #bdc3c7; }
     </style>
 </head>
 <body>
@@ -45,6 +46,7 @@
             <button id="download-progress-btn">İlerlemeyi İndir</button>
             <input type="file" id="upload-progress-input" style="display:none;" />
             <button id="upload-progress-btn">İlerlemeyi Yükle</button>
+            <label class="audio-control"><input type="checkbox" id="auto-play-audio" checked> Soru sesini otomatik çal</label>
             <div id="srs-controls" style="display: none; gap: 10px;">
                 <button class="srs-btn" data-rating="1" style="background-color: #c0392b;">Tekrar</button>
                 <button class="srs-btn" data-rating="2" style="background-color: #e67e22;">Zor</button>
@@ -176,6 +178,7 @@
         const downloadProgressBtn = document.getElementById('download-progress-btn');
         const uploadProgressBtn = document.getElementById('upload-progress-btn');
         const uploadProgressInput = document.getElementById('upload-progress-input');
+        const autoPlayAudioCheckbox = document.getElementById('auto-play-audio');
 
         const DAILY_NEW_QUESTION_LIMIT = 200;
         
@@ -184,6 +187,15 @@
         let answered = false;
         let currentQuestion = null;
         let currentSchedules = {};
+
+        // Fisher-Yates shuffle for randomizing new questions
+        function shuffle(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
 
         async function startQuiz() {
             try {
@@ -231,7 +243,9 @@
                 }
                 
                 const newQuestionsAllowedToday = DAILY_NEW_QUESTION_LIMIT - dailyStats.newQuestionsSeen;
-                const newQuestionsForSession = newQuestions.slice(0, Math.max(0, newQuestionsAllowedToday));
+                // Rastgele yeni sorular seç
+                const shuffledNewQuestions = shuffle([...newQuestions]);
+                const newQuestionsForSession = shuffledNewQuestions.slice(0, Math.max(0, newQuestionsAllowedToday));
                 
                 dueQuestionsPool = [...reviewQuestions, ...newQuestionsForSession];
 
@@ -244,7 +258,7 @@
                 displayQuestion();
 
             } catch (error) {
-                quizContainer.innerHTML = `<h1>Hata</h1><p>${error.message}</p>`;
+                quizContainer.innerHTML = `<h1>Üzgünüz!</h1><p>Sorular yüklenemedi. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.</p>`;
             }
         }
         
@@ -280,6 +294,12 @@
                 optionEl.innerHTML = `<span class="option-letter">${key.toUpperCase()}</span><span>${options[key]}</span>`;
                 optionEl.addEventListener('click', () => selectAnswer(optionEl, key));
                 optionsContainerEl.appendChild(optionEl);
+            }
+            // Otomatik ses çalma
+            if (autoPlayAudioCheckbox.checked) {
+                audioPlayer.play().catch(error => {
+                    console.error("Ses çalma hatası:", error);
+                });
             }
         }
 
