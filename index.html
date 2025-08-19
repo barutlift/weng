@@ -3,491 +3,141 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WEng - FSRS Edition</title>
+    <title>Animasyonlu Çekiliş</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #2c3e50; color: #ecf0f1; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .quiz-container { background-color: #34495e; border-radius: 10px; padding: 70px 30px 30px 30px; width: 100%; max-width: 800px; box-shadow: 0 10px 20px rgba(0,0,0,0.2); position: relative; }
-        .question-header { border-bottom: 2px solid #7f8c8d; padding-bottom: 15px; margin-bottom: 20px; display: flex; align-items: center; gap: 15px; }
-        .sentence { font-size: 1.4em; font-style: italic; margin-bottom: 0; flex-grow: 1; }
-        .prompt { font-size: 1.2em; font-weight: bold; margin-top: 10px; }
-        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .option { background-color: #7f8c8d; border: 2px solid transparent; border-radius: 5px; padding: 15px; cursor: pointer; transition: all 0.2s ease-in-out; display: flex; align-items: center; }
-        .option:hover { background-color: #95a5a6; }
-        .option.correct { background-color: #27ae60; color: white; border-color: #2ecc71; }
-        .option.incorrect { background-color: #c0392b; color: white; border-color: #e74c3c; }
-        .option-letter { font-weight: bold; margin-right: 15px; background-color: rgba(0,0,0,0.2); border-radius: 50%; width: 30px; height: 30px; display: flex; justify-content: center; align-items: center; flex-shrink: 0; }
-        .controls { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
-        button { background: none; border: 1px solid #bdc3c7; color: #ecf0f1; padding: 8px 12px; border-radius: 5px; cursor: pointer; font-size: 0.9em; transition: all 0.2s ease-in-out; }
-        button:hover { background: #7f8c8d; }
-        .stats { position: absolute; top: 15px; right: 25px; font-size: 0.9em; color: #bdc3c7; text-align: right; }
-        #speak-btn { font-size: 1.5em; cursor: pointer; user-select: none; }
-        .srs-btn { color: white; border: none; padding: 12px 20px; border-radius: 5px; font-size: 1em; cursor: pointer; transition: opacity 0.2s; }
-        .srs-btn:hover { opacity: 0.9; }
-        .status-label { position: absolute; top: 15px; left: 25px; font-size: 1.1em; font-weight: bold; text-transform: uppercase; }
-        .status-new { color: #f1c40f; }
-        .status-review { color: #e67e22; }
-        .audio-control { font-size: 0.9em; color: #bdc3c7; }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Kazananı vurgulamak için basit bir animasyon */
+        @keyframes winner-animation {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .winner-effect {
+            animation: winner-animation 1s ease-in-out;
+        }
+        /* Buton için hover efekti */
+        .draw-button {
+            transition: all 0.3s ease;
+        }
+        .draw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
     </style>
 </head>
-<body>
-    <div class="quiz-container">
-        <div id="question-status" class="status-label"></div>
-        <div id="stats" class="stats"></div>
-        <div id="question-area">
-            <div class="question-header">
-                <p id="sentence" class="sentence"></p>
-                <span id="speak-btn" title="Tekrar Dinle">🔊</span>
-            </div>
-            <p id="prompt" class="prompt"></p>
-            <div id="options-container" class="options-container"></div>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+
+    <div class="w-full max-w-md mx-auto p-8 bg-gray-800 rounded-2xl shadow-2xl text-center">
+        <!-- Başlık -->
+        <h1 class="text-4xl font-bold text-cyan-400 mb-4">Çekiliş Zamanı!</h1>
+        <p class="text-gray-400 mb-8">Kazananı görmek için butona tıkla.</p>
+
+        <!-- Çekiliş Animasyon Alanı -->
+        <div class="bg-gray-700 p-8 rounded-lg mb-8 h-32 flex items-center justify-center overflow-hidden">
+            <span id="participant" class="text-3xl font-semibold text-white transition-opacity duration-300">?</span>
         </div>
-        <div class="controls">
-            <button id="reset-btn">İlerlemeyi Sıfırla</button>
-            <button id="download-progress-btn">İlerlemeyi İndir</button>
-            <input type="file" id="upload-progress-input" style="display:none;" />
-            <button id="upload-progress-btn">İlerlemeyi Yükle</button>
-            <label class="audio-control"><input type="checkbox" id="auto-play-audio" checked> Soru sesini otomatik çal</label>
-            <div id="srs-controls" style="display: none; gap: 10px;">
-                <button class="srs-btn" data-rating="1" style="background-color: #c0392b;">Tekrar</button>
-                <button class="srs-btn" data-rating="2" style="background-color: #e67e22;">Zor</button>
-                <button class="srs-btn" data-rating="3" style="background-color: #3498db;">İyi</button>
-                <button class="srs-btn" data-rating="4" style="background-color: #27ae60;">Kolay</button>
-            </div>
+        
+        <!-- Kazananın Gösterileceği Alan -->
+        <div id="winner-display" class="hidden mt-6 p-6 bg-green-900/50 border border-green-500 rounded-lg">
+             <h2 class="text-xl font-semibold text-green-300 mb-2">🎉 Kazanan 🎉</h2>
+             <p id="winner-name" class="text-4xl font-bold text-white"></p>
         </div>
+
+
+        <!-- Çekilişi Başlat Butonu -->
+        <button id="draw-button" class="draw-button w-full bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-bold py-4 px-6 rounded-lg text-xl shadow-lg">
+            Çekilişi Başlat
+        </button>
+        
+        <!-- Mesaj Kutusu -->
+        <div id="message-box" class="fixed top-5 right-5 bg-red-500 text-white p-4 rounded-lg shadow-lg hidden">
+            <p id="message-text"></p>
+        </div>
+
     </div>
-    <audio id="audio-player"></audio>
 
     <script>
-        // --- FSRS (Free Spaced Repetition Scheduler) Implementation ---
-        const State = { New: 0, Learning: 1, Review: 2, Relearning: 3 };
-        const Rating = { Again: 1, Hard: 2, Good: 3, Easy: 4 };
+        // DOM elementlerini seçme
+        const participantSpan = document.getElementById('participant');
+        const drawButton = document.getElementById('draw-button');
+        const winnerDisplay = document.getElementById('winner-display');
+        const winnerName = document.getElementById('winner-name');
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
 
-        class FSRS {
-            constructor(p) {
-                this.p = p || {
-                    request_retention: 0.9,
-                    maximum_interval: 36500,
-                    w: [0.4, 0.6, 2.4, 5.8, 4.93, 0.94, 0.86, 0.01, 1.49, 0.14, 0.94, 2.18, 0.05, 0.34, 1.26, 0.29, 2.61]
-                };
-            }
-
-            repeat(card, now) {
-                now = new Date(now);
-                card = {
-                    ...{
-                        due: now,
-                        stability: 0,
-                        difficulty: 0,
-                        elapsed_days: 0,
-                        scheduled_days: 0,
-                        reps: 0,
-                        lapses: 0,
-                        state: State.New,
-                        last_review: now
-                    },
-                    ...card
-                };
-
-                if (card.state === State.New) {
-                    card.elapsed_days = 0;
-                    card.last_review = now;
-                } else {
-                    card.elapsed_days = (now.getTime() - new Date(card.last_review).getTime()) / (1000 * 60 * 60 * 24);
-                }
-
-                let scheduling_cards = {};
-                for (let rating of Object.values(Rating)) {
-                    scheduling_cards[rating] = this.schedule(card, rating, now);
-                }
-                
-                return scheduling_cards;
-            }
-
-            schedule(card, rating, now) {
-                const s = this.p.w;
-                let new_card = { ...card };
-                new_card.reps += 1;
-                let interval;
-
-                if (new_card.state === State.New) {
-                    new_card.last_review = new Date(now);
-                    new_card.difficulty = Math.min(10, Math.max(1, s[6] + (rating - 3) * s[7]));
-
-                    switch (rating) {
-                        case Rating.Again:
-                            new_card.stability = 0;
-                            interval = 10 / (60 * 24); // 10 minutes
-                            new_card.state = State.Learning;
-                            break;
-                        case Rating.Hard:
-                            new_card.stability = s[0] + s[1]; // ~1 day
-                            interval = new_card.stability;
-                            new_card.state = State.Review;
-                            break;
-                        case Rating.Good:
-                            new_card.stability = s[2]; // ~2.4 days
-                            interval = new_card.stability;
-                            new_card.state = State.Review;
-                            break;
-                        case Rating.Easy:
-                            new_card.stability = s[3]; // ~5.8 days
-                            interval = new_card.stability;
-                            new_card.state = State.Review;
-                            break;
-                    }
-
-                } else { // Learning, Review, Relearning
-                    const scheduled_days = (new Date(new_card.due).getTime() - new Date(new_card.last_review).getTime()) / (1000 * 60 * 60 * 24);
-                    const retrievability = Math.pow(1 + scheduled_days / (9 * new_card.stability * s[4]), -1);
-                    
-                    new_card.difficulty = Math.min(10, Math.max(1, new_card.difficulty + (rating - 3) * s[7] * (1 - retrievability)));
-
-                    if (rating === Rating.Again) {
-                        new_card.lapses += 1;
-                        new_card.stability = s[9] * Math.pow(new_card.difficulty, -s[10]) * Math.pow(new_card.stability, s[11]) * Math.exp((1 - retrievability) * s[12]);
-                        interval = 10 / (60 * 24); // 10 minutes
-                        new_card.state = State.Relearning;
-                    } else {
-                        const easy_bonus = rating === Rating.Easy ? s[15] : 1;
-                        const stability_after_review = new_card.stability * (1 + Math.exp(s[8]) * (11 - new_card.difficulty) * Math.pow(new_card.stability, -s[2]) * (Math.exp((1 - retrievability) * s[3]) - 1) * easy_bonus);
-                        new_card.stability = stability_after_review;
-                        interval = Math.min(this.p.maximum_interval, stability_after_review);
-                        new_card.state = State.Review;
-                    }
-                }
-
-                new_card.due = new Date(now.getTime() + interval * 24 * 60 * 60 * 1000);
-                
-                return { card: new_card, interval: interval };
-            }
-        }
+        // Fotoğraflardan alınan kullanıcı adları
+        const participants = [
+            '@nisa_snn', '@alicedancev', '@giorgio11o', '@saltikefe', '@guardianofbed', 
+            '@wiseboi808', '@Ogulcanbaysall', '@mirza_cafar', '@ValiyevFeridBJK', 
+            '@FirdovsiTalibli', '@RahibGS', '@sevvaliaaksoy', '@tutkuneer', '@seozsans', 
+            '@Sabuhi387313', '@MTNNZS', '@exhand1e', '@esgatur', '@sanane125684', 
+            '@onlytgil', '@Tirtil3410', '@kelmarianoo', '@rdhb69', '@a_s_l_a_n_1905', 
+            '@bilgebey_yakup', '@_artemis92', '@efecillii', '@KadyBorges'
+        ];
         
-        const fsrs = new FSRS();
-        
-        // --- Application Logic ---
-        const sentenceEl = document.getElementById('sentence');
-        const promptEl = document.getElementById('prompt');
-        const optionsContainerEl = document.getElementById('options-container');
-        const statsEl = document.getElementById('stats');
-        const speakBtn = document.getElementById('speak-btn');
-        const audioPlayer = document.getElementById('audio-player');
-        const resetBtn = document.getElementById('reset-btn');
-        const srsControlsEl = document.getElementById('srs-controls');
-        const quizContainer = document.querySelector('.quiz-container');
-        const statusLabel = document.getElementById('question-status');
-        const downloadProgressBtn = document.getElementById('download-progress-btn');
-        const uploadProgressBtn = document.getElementById('upload-progress-btn');
-        const uploadProgressInput = document.getElementById('upload-progress-input');
-        const autoPlayAudioCheckbox = document.getElementById('auto-play-audio');
+        // Her zaman kazanacak olan kişi
+        const fixedWinner = '@onlytgil';
 
-        const DAILY_NEW_QUESTION_LIMIT = 200;
-        
-        let dueQuestionsPool = [];
-        let allQuestions = [];
-        let answered = false;
-        let currentQuestion = null;
-        let currentSchedules = {};
+        let intervalId = null;
+        let isDrawing = false;
 
-        // Fisher-Yates shuffle for randomizing new questions
-        function shuffle(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
+        // Mesaj kutusunu gösterme fonksiyonu
+        function showMessage(message) {
+            messageText.textContent = message;
+            messageBox.classList.remove('hidden');
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000); // 3 saniye sonra mesajı gizle
         }
 
-        async function startQuiz() {
-            try {
-                try {
-                    const progressRes = await fetch('./progress.json');
-                    if (progressRes.ok) {
-                        const progressData = await progressRes.json();
-                        if (!localStorage.getItem('questionStates')) {
-                           localStorage.setItem('questionStates', JSON.stringify(progressData.questionStates || {}));
-                           localStorage.setItem('dailyStats', JSON.stringify(progressData.dailyStats || {}));
-                        }
-                    }
-                } catch(e) { /* Ignore */ }
-
-                if (allQuestions.length === 0) {
-                    const response = await fetch('./soru_bankasi.json');
-                    if (!response.ok) throw new Error('Hata: soru_bankasi.json dosyası yüklenemedi.');
-                    const loadedData = await response.json();
-                    allQuestions = loadedData.flatMap(wordData =>
-                        wordData.questions.map(q => ({ ...q, word: wordData.word }))
-                    );
-                }
-
-                const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-                const todayStr = new Date().toISOString().split('T')[0];
-                let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || '{}');
-                if (dailyStats.date !== todayStr) {
-                    dailyStats = { date: todayStr, newQuestionsSeen: 0 };
-                    localStorage.setItem('dailyStats', JSON.stringify(dailyStats));
-                }
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                const reviewQuestions = [];
-                const newQuestions = [];
-                for (const q of allQuestions) {
-                    const state = states[q.questionId];
-                    if (state && state.due) {
-                        const dueDate = new Date(state.due);
-                        if (dueDate <= today) reviewQuestions.push(q);
-                    } else {
-                        newQuestions.push(q);
-                    }
-                }
-                
-                const newQuestionsAllowedToday = DAILY_NEW_QUESTION_LIMIT - dailyStats.newQuestionsSeen;
-                // Rastgele yeni sorular seç
-                const shuffledNewQuestions = shuffle([...newQuestions]);
-                const newQuestionsForSession = shuffledNewQuestions.slice(0, Math.max(0, newQuestionsAllowedToday));
-                
-                dueQuestionsPool = [...reviewQuestions, ...newQuestionsForSession];
-
-                if (dueQuestionsPool.length === 0 && allQuestions.length > 0) {
-                    displayNoMoreQuestionsMessage(states);
-                    return;
-                }
-
-                dueQuestionsPool.sort(() => Math.random() - 0.5);
-                displayQuestion();
-
-            } catch (error) {
-                quizContainer.innerHTML = `<h1>Üzgünüz!</h1><p>Sorular yüklenemedi. Lütfen internet bağlantınızı kontrol edin veya sayfayı yenileyin.</p>`;
-            }
-        }
-        
-        function displayQuestion() {
-            if (dueQuestionsPool.length === 0) { startQuiz(); return; }
-            answered = false;
-            srsControlsEl.style.display = 'none';
-            updateStats();
-            currentQuestion = dueQuestionsPool[0];
-
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const cardState = states[currentQuestion.questionId];
-            const isNew = !cardState || cardState.state === State.New;
-
-            if(isNew) {
-                statusLabel.textContent = 'YENİ';
-                statusLabel.className = 'status-label status-new';
-            } else {
-                statusLabel.textContent = 'TEKRAR';
-                statusLabel.className = 'status-label status-review';
+        // Çekiliş fonksiyonu
+        function startRaffle() {
+            if (isDrawing) {
+                showMessage("Çekiliş zaten devam ediyor!");
+                return;
             }
             
-            audioPlayer.src = `./audio/${currentQuestion.questionId}.mp3`;
-            sentenceEl.innerHTML = currentQuestion.sentence.replace(/\[__.*?__\]/g, `<b>[_______]</b>`);
-            promptEl.textContent = currentQuestion.prompt;
-            optionsContainerEl.innerHTML = '';
-            const options = currentQuestion.options;
-            let optionKeys = Object.keys(options).sort(() => Math.random() - 0.5);
-            for (const key of optionKeys) {
-                const optionEl = document.createElement('div');
-                optionEl.classList.add('option');
-                optionEl.dataset.key = key;
-                optionEl.innerHTML = `<span class="option-letter">${key.toUpperCase()}</span><span>${options[key]}</span>`;
-                optionEl.addEventListener('click', () => selectAnswer(optionEl, key));
-                optionsContainerEl.appendChild(optionEl);
-            }
-            // Otomatik ses çalma
-            if (autoPlayAudioCheckbox.checked) {
-                audioPlayer.play().catch(error => {
-                    console.error("Ses çalma hatası:", error);
-                });
-            }
-        }
+            isDrawing = true;
+            drawButton.disabled = true;
+            drawButton.textContent = 'Çekiliyor...';
+            drawButton.classList.add('opacity-50', 'cursor-not-allowed');
+            winnerDisplay.classList.add('hidden');
+            participantSpan.classList.remove('hidden');
 
-        function selectAnswer(selectedOptionEl, selectedKey) {
-            if (answered) return;
-            answered = true;
-            const correctKey = currentQuestion.correctAnswer;
-            Array.from(optionsContainerEl.children).forEach(option => {
-                option.style.cursor = 'default';
-                if (option.dataset.key === correctKey) option.classList.add('correct');
-                else if (option.dataset.key === selectedKey) option.classList.add('incorrect');
-            });
-            updateFsrsButtonLabels(selectedKey === correctKey);
-            srsControlsEl.style.display = 'flex';
-        }
-        
-        function formatInterval(intervalInDays) {
-            if (intervalInDays < 1) {
-                const minutes = Math.round(intervalInDays * 24 * 60);
-                if (minutes < 60) return `${minutes}dk`;
-                const hours = (intervalInDays * 24).toFixed(1);
-                return `~${hours}sa`;
-            }
-            if (intervalInDays < 30) {
-                return `${Math.round(intervalInDays)}g`;
-            }
-            const months = (intervalInDays / 30).toFixed(1);
-            return `~${months}ay`;
-        }
 
-        function updateFsrsButtonLabels(isCorrect) {
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const cardState = states[currentQuestion.questionId];
-            
-            currentSchedules = fsrs.repeat(cardState, new Date());
+            // Animasyonu başlat
+            intervalId = setInterval(() => {
+                const randomIndex = Math.floor(Math.random() * participants.length);
+                participantSpan.textContent = participants[randomIndex];
+            }, 100); // Her 100 milisaniyede bir kullanıcı adı değiştir
 
-            const againBtn = srsControlsEl.querySelector('[data-rating="1"]');
-            const hardBtn = srsControlsEl.querySelector('[data-rating="2"]');
-            const goodBtn = srsControlsEl.querySelector('[data-rating="3"]');
-            const easyBtn = srsControlsEl.querySelector('[data-rating="4"]');
-
-            againBtn.textContent = `Tekrar (${formatInterval(currentSchedules[Rating.Again].interval)})`;
-
-            if (!isCorrect) {
-                hardBtn.style.display = 'none';
-                goodBtn.style.display = 'none';
-                easyBtn.style.display = 'none';
-            } else {
-                hardBtn.style.display = 'block';
-                goodBtn.style.display = 'block';
-                easyBtn.style.display = 'block';
+            // Animasyonu durdur ve kazananı göster
+            setTimeout(() => {
+                clearInterval(intervalId);
                 
-                hardBtn.textContent = `Zor (${formatInterval(currentSchedules[Rating.Hard].interval)})`;
-                goodBtn.textContent = `İyi (${formatInterval(currentSchedules[Rating.Good].interval)})`;
-                easyBtn.textContent = `Kolay (${formatInterval(currentSchedules[Rating.Easy].interval)})`;
-            }
-        }
-        
-        function updateStats() {
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const todayStr = new Date().toISOString().split('T')[0];
-            let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || `{ "date": "${todayStr}", "newQuestionsSeen": 0 }`);
-            if (dailyStats.date !== todayStr) dailyStats.newQuestionsSeen = 0;
-            const knownCount = Object.values(states).filter(s => s.state === State.Review).length;
-            statsEl.innerHTML = `Bugün Kalan: ${dueQuestionsPool.length}<br>Yeni: ${dailyStats.newQuestionsSeen}/${DAILY_NEW_QUESTION_LIMIT}<br>Öğrenilen: ${knownCount}/${allQuestions.length || '...'}`;
-        }
+                // Kazananı göster
+                participantSpan.classList.add('hidden');
+                winnerName.textContent = fixedWinner;
+                winnerDisplay.classList.remove('hidden');
+                winnerDisplay.classList.add('winner-effect');
 
-        function displayNoMoreQuestionsMessage(questionStates) {
-            let nextQuestionDate = null;
-            const today = new Date();
-            today.setHours(0,0,0,0);
-            for (const qId in questionStates) {
-                if (questionStates[qId].due) {
-                    const dueDate = new Date(questionStates[qId].due);
-                    if (dueDate > today && (!nextQuestionDate || dueDate < nextQuestionDate)) {
-                        nextQuestionDate = dueDate;
-                    }
-                }
-            }
-            let message = `<h1>Harika!</h1><p>Bugünlük tüm soruları tamamladınız.</p>`;
-            if (nextQuestionDate) {
-                const formattedDate = nextQuestionDate.toLocaleDateString('tr-TR', { day: 'numeric', month: 'long', year: 'numeric' });
-                message += `<p style='font-size:0.9em'>Bir sonraki tekrar oturumunuz <b>${formattedDate}</b> tarihinde.</p>`;
-            }
-            message += `<button id="final-reset-btn" style="margin-top: 15px;">Tüm İlerlemeyi Sıfırla</button>`;
-            quizContainer.innerHTML = message;
-            document.getElementById('final-reset-btn').addEventListener('click', resetProgress);
+                // Butonu tekrar aktif et
+                isDrawing = false;
+                drawButton.disabled = false;
+                drawButton.textContent = 'Tekrar Çekiliş Yap';
+                drawButton.classList.remove('opacity-50', 'cursor-not-allowed');
+            }, 4000); // 4 saniye sonra animasyonu durdur
         }
 
-        function updateQuestionState(rating) {
-            const states = JSON.parse(localStorage.getItem('questionStates') || '{}');
-            const questionId = currentQuestion.questionId;
-            const oldState = states[questionId];
-            const isNewQuestion = !oldState || oldState.state === State.New;
-
-            if (isNewQuestion && rating !== Rating.Again) {
-                const todayStr = new Date().toISOString().split('T')[0];
-                let dailyStats = JSON.parse(localStorage.getItem('dailyStats') || `{ "date": "${todayStr}", "newQuestionsSeen": 0 }`);
-                if (dailyStats.date !== todayStr) {
-                    dailyStats = { date: todayStr, newQuestionsSeen: 1 };
-                } else {
-                    dailyStats.newQuestionsSeen++;
-                }
-                localStorage.setItem('dailyStats', JSON.stringify(dailyStats));
-            }
-            
-            const newState = currentSchedules[rating].card;
-            newState.last_review = new Date().toISOString(); 
-            states[questionId] = newState;
-            localStorage.setItem('questionStates', JSON.stringify(states));
-            
-            dueQuestionsPool.shift(); 
-
-            if (rating === Rating.Again) {
-                 const reInsertIndex = Math.min(10, dueQuestionsPool.length);
-                 dueQuestionsPool.splice(reInsertIndex, 0, currentQuestion);
-            }
-            
-            displayQuestion();
-        }
-        
-        srsControlsEl.querySelectorAll('.srs-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const rating = parseInt(e.target.dataset.rating, 10);
-                updateQuestionState(rating);
-            });
-        });
-
-        function resetProgress() {
-            if (window.confirm("Tüm öğrenme ilerlemeniz ve istatistikleriniz silinecek. Bu işlem geri alınamaz. Emin misiniz?")) {
-                localStorage.removeItem('questionStates');
-                localStorage.removeItem('dailyStats');
-                location.reload();
-            }
-        }
-
-        function downloadProgress() {
-            const data = {
-                questionStates: JSON.parse(localStorage.getItem('questionStates') || '{}'),
-                dailyStats: JSON.parse(localStorage.getItem('dailyStats') || '{}')
-            };
-            const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "progress.json";
-            a.click();
-            URL.revokeObjectURL(url);
-        }
-
-        function uploadProgress(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    if (data.questionStates) {
-                        localStorage.setItem('questionStates', JSON.stringify(data.questionStates));
-                    }
-                    if (data.dailyStats) {
-                        localStorage.setItem('dailyStats', JSON.stringify(data.dailyStats));
-                    }
-                    alert("İlerleme başarıyla yüklendi!");
-                    location.reload();
-                } catch (err) {
-                    alert("Geçersiz dosya formatı!");
-                }
-            };
-            reader.readAsText(file);
-        }
-
-        resetBtn.addEventListener('click', resetProgress);
-        downloadProgressBtn.addEventListener('click', downloadProgress);
-        uploadProgressBtn.addEventListener('click', () => uploadProgressInput.click());
-        uploadProgressInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                uploadProgress(e.target.files[0]);
-            }
-        });
-
-        speakBtn.addEventListener('click', () => {
-            if (currentQuestion && audioPlayer.src) {
-                audioPlayer.play().catch(error => {
-                    console.error("Ses çalma hatası:", error);
-                });
-            }
-        });
-        
-        startQuiz();
+        // Butona tıklama olayını dinle
+        drawButton.addEventListener('click', startRaffle);
     </script>
+
 </body>
 </html>
