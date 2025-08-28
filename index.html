@@ -3,141 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Animasyonlu Çekiliş</title>
+    <title>YouTube Video Dakika Görüntüleyici</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Kazananı vurgulamak için basit bir animasyon */
-        @keyframes winner-animation {
-            0% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(1); opacity: 1; }
+        /* Player'ın aspect ratio'sunu korumak için */
+        .aspect-video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
         }
-        .winner-effect {
-            animation: winner-animation 1s ease-in-out;
-        }
-        /* Buton için hover efekti */
-        .draw-button {
-            transition: all 0.3s ease;
-        }
-        .draw-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        .aspect-video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen">
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
 
-    <div class="w-full max-w-md mx-auto p-8 bg-gray-800 rounded-2xl shadow-2xl text-center">
-        <!-- Başlık -->
-        <h1 class="text-4xl font-bold text-cyan-400 mb-4">GRAM ALTIN ÇEKİLİŞİ</h1>
-        <p class="text-gray-400 mb-8"></p>
+    <div class="w-full max-w-4xl bg-white rounded-2xl shadow-lg p-6 md:p-8 space-y-6">
+        <header>
+            <h1 class="text-2xl md:text-3xl font-bold text-center text-gray-900">YouTube Video Dakika Görüntüleyici</h1>
+            <p class="text-center text-gray-500 mt-2">Bir YouTube video linki yapıştırın ve videoyu birer dakikalık bölümler halinde izleyin.</p>
+        </header>
 
-        <!-- Çekiliş Animasyon Alanı -->
-        <div class="bg-gray-700 p-8 rounded-lg mb-8 h-32 flex items-center justify-center overflow-hidden">
-            <span id="participant" class="text-3xl font-semibold text-white transition-opacity duration-300">?</span>
-        </div>
-        
-        <!-- Kazananın Gösterileceği Alan -->
-        <div id="winner-display" class="hidden mt-6 p-6 bg-green-900/50 border border-green-500 rounded-lg">
-             <h2 class="text-xl font-semibold text-green-300 mb-2">🎉 Gram Altın Kazanan 🎉</h2>
-             <p id="winner-name" class="text-4xl font-bold text-white"></p>
+        <!-- URL Giriş Alanı -->
+        <div class="flex flex-col sm:flex-row gap-3">
+            <input type="text" id="youtube-url" placeholder="YouTube video linkini buraya yapıştırın..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+            <button id="load-video-btn" class="bg-blue-600 text-white font-semibold px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                Videoyu Yükle
+            </button>
         </div>
 
+        <!-- Video ve Metin Alanı -->
+        <div id="player-container" class="hidden grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- YouTube Player -->
+            <div class="aspect-video-container bg-gray-200 rounded-lg overflow-hidden">
+                <div id="player"></div>
+            </div>
 
-        <!-- Çekilişi Başlat Butonu -->
-        <button id="draw-button" class="draw-button w-full bg-cyan-500 hover:bg-cyan-600 text-gray-900 font-bold py-4 px-6 rounded-lg text-xl shadow-lg">
-            Çekilişi Başlat
-        </button>
-        
-        <!-- Mesaj Kutusu -->
-        <div id="message-box" class="fixed top-5 right-5 bg-red-500 text-white p-4 rounded-lg shadow-lg hidden">
-            <p id="message-text"></p>
+            <!-- Transcript ve Kontroller -->
+            <div class="flex flex-col">
+                <div id="transcript-container" class="flex-grow bg-gray-50 p-4 border rounded-lg h-64 lg:h-auto overflow-y-auto">
+                    <p class="text-gray-500">Metin (transcript) burada görünecek. Lütfen önce bir video yükleyin.</p>
+                </div>
+                <div class="mt-4 p-4 bg-gray-100 rounded-lg">
+                    <div id="time-info" class="text-center font-mono text-lg mb-3">
+                        Bölüm: <span id="current-segment">--:--</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <button id="prev-minute-btn" disabled class="px-5 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                            &larr; Önceki
+                        </button>
+                        <button id="next-minute-btn" disabled class="px-5 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition">
+                            Sonraki &rarr;
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
-
+         <!-- Hata Mesajı -->
+        <div id="error-message" class="hidden text-center text-red-600 bg-red-100 p-3 rounded-lg"></div>
     </div>
 
     <script>
-        // DOM elementlerini seçme
-        const participantSpan = document.getElementById('participant');
-        const drawButton = document.getElementById('draw-button');
-        const winnerDisplay = document.getElementById('winner-display');
-        const winnerName = document.getElementById('winner-name');
-        const messageBox = document.getElementById('message-box');
-        const messageText = document.getElementById('message-text');
+        // YouTube IFrame Player API'sini asenkron olarak yükle
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-        // Fotoğraflardan alınan kullanıcı adları
-        const participants = [
-            '@nisa_snn', '@alicedancev', '@giorgio11o', '@saltikefe', '@guardianofbed', 
-            '@wiseboi808', '@Ogulcanbaysall', '@mirza_cafar', '@ValiyevFeridBJK', 
-            '@FirdovsiTalibli', '@RahibGS', '@sevvallaaksoy', '@tutkuneer', '@seozsans', 
-            '@Sabuhi387313', '@MTNNZS', '@exhand1e', '@esgatur', '@sanane125684', 
-            '@onlytgil', '@Tirtil3410', '@kelmarianoo', '@rdhb69', '@a_s_l_a_n_1905', 
-            '@bilgebey_yakup', '@_artemis92', '@efecillii', '@KadyBorges'
-        ];
-        
-        // Her zaman kazanacak olan kişi
-        const fixedWinner = '@sevvallaaksoy';
+        let player;
+        let timeChecker; // setInterval'ı tutmak için değişken
+        let currentSegment = 0; // Mevcut 1 dakikalık bölüm (0'dan başlar)
+        let totalSegments = 0;
 
-        let intervalId = null;
-        let isDrawing = false;
+        const urlInput = document.getElementById('youtube-url');
+        const loadBtn = document.getElementById('load-video-btn');
+        const playerContainer = document.getElementById('player-container');
+        const prevBtn = document.getElementById('prev-minute-btn');
+        const nextBtn = document.getElementById('next-minute-btn');
+        const transcriptDiv = document.getElementById('transcript-container');
+        const currentSegmentSpan = document.getElementById('current-segment');
+        const errorMessageDiv = document.getElementById('error-message');
 
-        // Mesaj kutusunu gösterme fonksiyonu
-        function showMessage(message) {
-            messageText.textContent = message;
-            messageBox.classList.remove('hidden');
-            setTimeout(() => {
-                messageBox.classList.add('hidden');
-            }, 3000); // 3 saniye sonra mesajı gizle
+        // API hazır olduğunda bu fonksiyon çağrılır
+        function onYouTubeIframeAPIReady() {
+            // Player'ı başlangıçta oluşturmuyoruz, kullanıcı link girince oluşturacağız.
         }
 
-        // Çekiliş fonksiyonu
-        function startRaffle() {
-            if (isDrawing) {
-                showMessage("Çekiliş zaten devam ediyor!");
+        // YouTube video ID'sini çeşitli URL formatlarından ayıklayan fonksiyon
+        function getVideoId(url) {
+            let videoId = '';
+            const youtubeRegex = /^(?:https-?:\/\/)?(?:www\.)?(?:m\.)?(?:youtube\.com|youtu\.be)\/(?:watch\?v=|embed\/|v\/|)([\w-]{11})(?:\S+)?$/;
+            const match = url.match(youtubeRegex);
+            if (match && match[1]) {
+                videoId = match[1];
+            }
+            return videoId;
+        }
+
+        function displayError(message) {
+            errorMessageDiv.textContent = message;
+            errorMessageDiv.classList.remove('hidden');
+        }
+
+        function clearError() {
+            errorMessageDiv.classList.add('hidden');
+        }
+
+        // Videoyu yükle butonuna tıklandığında
+        loadBtn.addEventListener('click', () => {
+            const videoUrl = urlInput.value.trim();
+            if (!videoUrl) {
+                displayError("Lütfen geçerli bir YouTube video linki girin.");
                 return;
             }
             
-            isDrawing = true;
-            drawButton.disabled = true;
-            drawButton.textContent = 'Çekiliyor...';
-            drawButton.classList.add('opacity-50', 'cursor-not-allowed');
-            winnerDisplay.classList.add('hidden');
-            participantSpan.classList.remove('hidden');
+            const videoId = getVideoId(videoUrl);
+            
+            if (!videoId) {
+                displayError("Geçersiz YouTube URL'si. Lütfen linki kontrol edin.");
+                return;
+            }
 
+            clearError();
+            playerContainer.classList.remove('hidden');
+            currentSegment = 0; // Yeni video için segmenti sıfırla
 
-            // Animasyonu başlat
-            intervalId = setInterval(() => {
-                const randomIndex = Math.floor(Math.random() * participants.length);
-                participantSpan.textContent = participants[randomIndex];
-            }, 100); // Her 100 milisaniyede bir kullanıcı adı değiştir
+            // Eğer daha önce bir player oluşturulduysa, sadece yeni videoyu yükle
+            if (player) {
+                player.loadVideoById(videoId);
+            } else {
+                // Yoksa yeni bir player oluştur
+                player = new YT.Player('player', {
+                    height: '360',
+                    width: '640',
+                    videoId: videoId,
+                    playerVars: {
+                        'playsinline': 1,
+                        'rel': 0 // İlgili videoları gösterme
+                    },
+                    events: {
+                        'onReady': onPlayerReady,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+        });
 
-            // Animasyonu durdur ve kazananı göster
-            setTimeout(() => {
-                clearInterval(intervalId);
-                
-                // Kazananı göster
-                participantSpan.classList.add('hidden');
-                winnerName.textContent = fixedWinner;
-                winnerDisplay.classList.remove('hidden');
-                winnerDisplay.classList.add('winner-effect');
-
-                // Butonu tekrar aktif et
-                isDrawing = false;
-                drawButton.disabled = false;
-                drawButton.textContent = 'Tekrar Çekiliş Yap';
-                drawButton.classList.remove('opacity-50', 'cursor-not-allowed');
-            }, 4000); // 4 saniye sonra animasyonu durdur
+        // Player hazır olduğunda
+        function onPlayerReady(event) {
+            const duration = player.getDuration();
+            totalSegments = Math.ceil(duration / 60);
+            updateControls();
+            updateTranscript();
         }
 
-        // Butona tıklama olayını dinle
-        drawButton.addEventListener('click', startRaffle);
-    </script>
+        // Player durumu değiştiğinde (oynatılıyor, durdu vs.)
+        function onPlayerStateChange(event) {
+            // Video oynatılmaya başlandığında
+            if (event.data == YT.PlayerState.PLAYING) {
+                const segmentEndTime = (currentSegment + 1) * 60;
+                
+                // Önceki zamanlayıcıyı temizle
+                if (timeChecker) {
+                    clearInterval(timeChecker);
+                }
 
+                // Her 250ms'de bir videonun mevcut zamanını kontrol et
+                timeChecker = setInterval(() => {
+                    const currentTime = player.getCurrentTime();
+                    // Eğer mevcut zaman, bölümün bitiş zamanını geçtiyse videoyu durdur
+                    if (currentTime >= segmentEndTime) {
+                        player.pauseVideo();
+                        // Zamanlayıcıyı temizle, çünkü video durdu
+                        clearInterval(timeChecker);
+                    }
+                }, 250);
+            } else {
+                // Video oynamıyorsa (duraklatıldı, bitti vs.) zamanlayıcıyı temizle
+                if (timeChecker) {
+                    clearInterval(timeChecker);
+                }
+            }
+        }
+
+        // Kontrol butonlarının durumunu güncelle
+        function updateControls() {
+            // Önceki butonu: İlk segmentte değilsek aktif
+            prevBtn.disabled = currentSegment === 0;
+            // Sonraki butonu: Son segmentte değilsek aktif
+            nextBtn.disabled = currentSegment >= totalSegments - 1;
+
+            const start = currentSegment * 60;
+            const end = (currentSegment + 1) * 60;
+            currentSegmentSpan.textContent = `${formatTime(start)} - ${formatTime(end)}`;
+        }
+
+        // Metin alanını güncelle
+        function updateTranscript() {
+            // ÖNEMLİ NOT: YouTube API'si doğrudan metin (transcript/altyazı) verisi sağlamaz.
+            // Bu özelliği çalışır hale getirmek için sunucu taraflı (backend) bir kod yazmak
+            // ve youtube-transcript-api gibi bir kütüphane kullanmak gerekir.
+            // Bu örnekte, bu işlevsellik sembolik olarak gösterilmiştir.
+            const startTime = currentSegment * 60;
+            const endTime = (currentSegment + 1) * 60;
+            transcriptDiv.innerHTML = `
+                <h3 class="font-bold text-lg mb-2">Bölüm Metni (${formatTime(startTime)} - ${formatTime(endTime)})</h3>
+                <p class="text-gray-600 italic">
+                    Bu videonun bu bölümü için metin (transcript) verisi şu anda gösterilemiyor. 
+                    Bu özelliğin çalışması için sunucu taraflı bir entegrasyon gereklidir.
+                </p>
+            `;
+        }
+        
+        // Zamanı MM:SS formatına çevirir
+        function formatTime(seconds) {
+            const min = Math.floor(seconds / 60);
+            const sec = Math.floor(seconds % 60);
+            return `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
+        }
+
+        // Önceki dakika butonuna tıklama olayı
+        prevBtn.addEventListener('click', () => {
+            if (currentSegment > 0) {
+                currentSegment--;
+                player.seekTo(currentSegment * 60);
+                player.playVideo(); // Yeni segmente gidince otomatik oynat
+                updateControls();
+                updateTranscript();
+            }
+        });
+
+        // Sonraki dakika butonuna tıklama olayı
+        nextBtn.addEventListener('click', () => {
+            if (currentSegment < totalSegments - 1) {
+                currentSegment++;
+                player.seekTo(currentSegment * 60);
+                player.playVideo(); // Yeni segmente gidince otomatik oynat
+                updateControls();
+                updateTranscript();
+            }
+        });
+
+    </script>
 </body>
 </html>
